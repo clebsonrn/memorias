@@ -1,0 +1,65 @@
+<?php
+/**
+ * Configuração Mercado Pago
+ * COPIE ESTE ARQUIVO PARA config-mp.php E PREENCHA AS CREDENCIAIS
+ */
+
+define('MP_PUBLIC_KEY', 'APP_USR-SEU-PUBLIC-KEY-AQUI');
+define('MP_ACCESS_TOKEN', 'APP_USR-SEU-ACCESS-TOKEN-AQUI');
+
+define('SITE_URL', 'https://memorias.clebsonribeiro.com.br');
+define('SITE_NAME', 'Memórias de um Pé Vermelho');
+define('ARTIST_NAME', 'Clebson Ribeiro');
+define('ARTIST_EMAIL', 'contato@clebsonribeiro.com.br');
+
+define('DONATIONS_FILE', __DIR__ . '/donations.json');
+define('SUPPORTERS_COUNT_FILE', __DIR__ . '/supporters-count.json');
+
+define('MIN_DONATION', 1.00);
+define('MAX_DONATION', 1000.00);
+define('WEBHOOK_URL', SITE_URL . '/api/webhook-mp.php');
+
+// Funções auxiliares
+function loadJSON($file, $default = []) {
+    if (!file_exists($file)) return $default;
+    $content = file_get_contents($file);
+    return json_decode($content, true) ?? $default;
+}
+
+function saveJSON($file, $data) {
+    return file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
+}
+
+function jsonResponse($success, $data = [], $code = 200) {
+    http_response_code($code);
+    header('Content-Type: application/json; charset=utf-8');
+    header('Access-Control-Allow-Origin: ' . SITE_URL);
+    echo json_encode(array_merge(['success' => $success], $data), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+function generateId($prefix = 'don') {
+    return $prefix . '_' . uniqid() . '_' . bin2hex(random_bytes(4));
+}
+
+function validateAmount($amount) {
+    $amount = floatval($amount);
+    if ($amount < MIN_DONATION) {
+        return ['valid' => false, 'error' => 'Valor mínimo: R$ ' . MIN_DONATION];
+    }
+    if ($amount > MAX_DONATION) {
+        return ['valid' => false, 'error' => 'Valor máximo: R$ ' . MAX_DONATION];
+    }
+    return ['valid' => true, 'amount' => $amount];
+}
+
+function logDebug($message, $data = null) {
+    $logFile = __DIR__ . '/debug.log';
+    $timestamp = date('Y-m-d H:i:s');
+    $logMessage = "[{$timestamp}] {$message}";
+    if ($data !== null) {
+        $logMessage .= "\n" . print_r($data, true);
+    }
+    $logMessage .= "\n---\n";
+    file_put_contents($logFile, $logMessage, FILE_APPEND | LOCK_EX);
+}
