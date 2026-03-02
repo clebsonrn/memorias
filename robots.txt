@@ -1,0 +1,15 @@
+# Robots.txt - Memórias de um Pé Vermelho
+
+User-agent: *
+
+# Permitir indexação
+Allow: /
+Allow: /mensagem/
+Allow: /mensagens
+
+# Bloquear áreas privadas
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://memorias.clebsonribeiro.com.br/sitemap.xml

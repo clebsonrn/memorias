@@ -1,0 +1,473 @@
+/**
+ * Support Modal - Memórias de um Pé Vermelho
+ * Modal de apoio ao artista com design vintage
+ * v1.0
+ */
+
+/* ============================================
+   OVERLAY E CONTAINER
+   ============================================ */
+
+.support-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.support-modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+.support-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+}
+
+.support-content {
+    position: relative;
+    margin: auto;
+    max-width: 500px;
+    width: 90%;
+    background: rgba(20, 15, 10, 0.98);
+    border: 2px solid rgba(200, 170, 120, 0.3);
+    border-radius: 20px;
+    padding: 40px 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   BOTÃO FECHAR
+   ============================================ */
+
+.support-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #8a7a6a;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s;
+}
+
+.support-close:hover {
+    background: rgba(255, 120, 30, 0.1);
+    color: #ff7820;
+    transform: rotate(90deg);
+}
+
+/* ============================================
+   CONTEÚDO DO MODAL
+   ============================================ */
+
+.support-modal h2 {
+    font-family: 'Brush Script MT', cursive;
+    font-size: 1.8rem;
+    color: #f4e4c1;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.support-intro {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #d4c5b0;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.support-greeting {
+    font-family: 'Brush Script MT', cursive;
+    font-size: 1.3rem;
+    color: #f4e4c1;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.support-stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    color: #c9b896;
+}
+
+.support-stats .emoji {
+    font-size: 1.2rem;
+}
+
+.support-value {
+    background: rgba(255, 120, 30, 0.05);
+    border: 1px solid rgba(255, 120, 30, 0.2);
+    border-radius: 12px;
+    padding: 15px;
+    margin: 20px 0;
+    text-align: center;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #d4c5b0;
+}
+
+.support-value strong {
+    color: #ff7820;
+    font-size: 1.1rem;
+}
+
+.support-position {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #c9b896;
+    margin-bottom: 25px;
+    padding: 12px;
+    background: rgba(255, 120, 30, 0.05);
+    border-radius: 10px;
+}
+
+.support-position .emoji {
+    font-size: 1.1rem;
+}
+
+/* ============================================
+   SELEÇÃO DE VALORES
+   ============================================ */
+
+.support-amounts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 25px 0;
+}
+
+.amount-btn {
+    background: rgba(40, 30, 20, 0.8);
+    border: 2px solid rgba(200, 170, 120, 0.3);
+    border-radius: 12px;
+    padding: 18px 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.amount-btn:hover {
+    border-color: #ff7820;
+    background: rgba(255, 120, 30, 0.1);
+    transform: translateY(-2px);
+}
+
+.amount-btn.selected {
+    border-color: #ff7820;
+    background: rgba(255, 120, 30, 0.15);
+    box-shadow: 0 0 20px rgba(255, 120, 30, 0.3);
+}
+
+.amount-value {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #f4e4c1;
+}
+
+.amount-label {
+    font-size: 0.75rem;
+    color: #8a7a6a;
+}
+
+.amount-btn.custom {
+    grid-column: span 2;
+}
+
+.amount-btn.custom .amount-value {
+    font-size: 1.1rem;
+}
+
+/* Input de valor customizado */
+.custom-amount-input {
+    display: none;
+    margin-top: 15px;
+}
+
+.custom-amount-input.show {
+    display: block;
+}
+
+.custom-amount-input input {
+    width: 100%;
+    background: rgba(40, 30, 20, 0.8);
+    border: 2px solid rgba(200, 170, 120, 0.3);
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 1.2rem;
+    color: #f4e4c1;
+    text-align: center;
+    font-family: Georgia, serif;
+}
+
+.custom-amount-input input:focus {
+    outline: none;
+    border-color: #ff7820;
+    background: rgba(255, 120, 30, 0.05);
+}
+
+/* ============================================
+   BOTÕES DE AÇÃO
+   ============================================ */
+
+.support-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.btn-support-primary {
+    background: linear-gradient(135deg, #ff7820, #ffa040);
+    border: none;
+    border-radius: 30px;
+    padding: 16px 35px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(255, 120, 30, 0.4);
+}
+
+.btn-support-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(255, 120, 30, 0.6);
+}
+
+.btn-support-primary:active {
+    transform: translateY(0);
+}
+
+.btn-support-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-support-later {
+    background: transparent;
+    border: 1px solid rgba(200, 170, 120, 0.3);
+    border-radius: 30px;
+    padding: 12px 25px;
+    font-size: 0.9rem;
+    color: #8a7a6a;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-support-later:hover {
+    border-color: #c9a030;
+    color: #c9a030;
+}
+
+/* ============================================
+   MENSAGEM OPCIONAL
+   ============================================ */
+
+.support-optional {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.85rem;
+    color: #6a5a4a;
+    font-style: italic;
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+
+.support-loading {
+    display: none;
+    text-align: center;
+    padding: 20px;
+}
+
+.support-loading.show {
+    display: block;
+}
+
+.spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 120, 30, 0.2);
+    border-top-color: #ff7820;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.support-loading p {
+    margin-top: 15px;
+    color: #c9b896;
+    font-size: 0.9rem;
+}
+
+/* ============================================
+   BOTÃO FIXO (Canto da tela)
+   ============================================ */
+
+.support-fixed-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(255, 120, 30, 0.1);
+    border: 1px solid rgba(255, 120, 30, 0.3);
+    border-radius: 30px;
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    color: #ff7820;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.support-fixed-btn:hover {
+    background: rgba(255, 120, 30, 0.2);
+    border-color: #ff7820;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 120, 30, 0.4);
+}
+
+.support-fixed-btn .emoji {
+    margin-right: 5px;
+}
+
+/* ============================================
+   RESPONSIVO
+   ============================================ */
+
+@media (max-width: 600px) {
+    .support-content {
+        width: 95%;
+        padding: 30px 20px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .support-modal h2 {
+        font-size: 1.5rem;
+    }
+    
+    .support-amounts {
+        grid-template-columns: 1fr;
+    }
+    
+    .amount-btn.custom {
+        grid-column: span 1;
+    }
+    
+    .support-fixed-btn {
+        bottom: 15px;
+        right: 15px;
+        font-size: 0.8rem;
+        padding: 10px 16px;
+    }
+}
+
+/* ============================================
+/* ============================================
+   MERCADO PAGO iFrame
+   ============================================ */
+
+.mercadopago-container {
+    display: none;
+    min-height: 500px;
+    max-height: 70vh;
+    overflow-y: auto;
+    margin: 20px 0;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.mercadopago-container.show {
+    display: block;
+}
+
+/* Esconder seleção de valores quando MP estiver aberto */
+.support-content.payment-active .support-greeting,
+.support-content.payment-active .support-stats,
+.support-content.payment-active .support-amounts,
+.support-content.payment-active .support-value,
+.support-content.payment-active .support-position,
+.support-content.payment-active .custom-amount-input,
+.support-content.payment-active .support-actions {
+    display: none;
+}
+
+.support-content.payment-active .mercadopago-container {
+    display: block;
+}
+
+/* Ajustar modal quando checkout está aberto */
+.support-content.payment-active {
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+}
+
+/* iFrame do Mercado Pago */
+.mercadopago-container iframe {
+    width: 100% !important;
+    min-height: 500px;
+    border: none;
+    border-radius: 8px;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .mercadopago-container {
+        min-height: 400px;
+        max-height: 80vh;
+    }
+    
+    .support-content.payment-active {
+        max-width: 100%;
+        width: 100%;
+        padding: 15px;
+    }
+}

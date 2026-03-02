@@ -1,0 +1,233 @@
+[
+    {
+        "id": "msg_69931a26dd4520.30155851",
+        "name": "Arlindo",
+        "message": "bom demais",
+        "date": "2026-02-16T10:22:46-03:00",
+        "ip": "00a6c099fcf7c1d1faa1579f79dcf07358f0c8e4b3908b7c0b90d4f00c5dfb34"
+    },
+    {
+        "id": "msg_69931df0016235.07720841",
+        "name": "Marli Silva",
+        "message": "Romaria ficou linda",
+        "date": "2026-02-16T10:38:56-03:00",
+        "ip": "00a6c099fcf7c1d1faa1579f79dcf07358f0c8e4b3908b7c0b90d4f00c5dfb34",
+        "_email": "nos@f5virtual.com.br",
+        "_whatsapp": "41998269467",
+        "_consent": true
+    },
+    {
+        "id": "msg_6994ee62b0aa63.34224296",
+        "name": "Carlos",
+        "message": "Viola com violino, ficou bonito rapaz , parabens .",
+        "date": "2026-02-17T19:40:34-03:00",
+        "ip": "00a6c099fcf7c1d1faa1579f79dcf07358f0c8e4b3908b7c0b90d4f00c5dfb34",
+        "_email": "",
+        "_whatsapp": "",
+        "_consent": false
+    },
+    {
+        "id": "msg_69963d23daefb6.41571326",
+        "name": "Fernanda",
+        "message": "Lindo álbum! Emocionante! \nQue bom que vc nos brindou com essa joia! \nParabéns",
+        "date": "2026-02-18T19:28:51-03:00",
+        "ip": "9ce6e0ce3f56dd225f646857a40144f5e7f6fed7e8b730d57b8cfa8b7c4a3be9",
+        "_email": "fesalves@gmail.com",
+        "_whatsapp": "41999477677",
+        "_consent": true,
+        "reply": {
+            "text": "Obrigado !!! Você como sempre, é uma das minhas maiores fontes de inspiração !",
+            "date": "2026-02-20T16:08:15-03:00"
+        },
+        "_email_sent": true,
+        "_email_attempted": true
+    },
+    {
+        "id": "msg_6997b33ca41f06.89842459",
+        "name": "Marcelino Jesus de Lima",
+        "message": "Gostaria que no repertório tivesse Poeira, clássico de Luiz Bonan e de Serafim Colombo Gomes, mas  viola caipira é tudo de bom! Este modelo de rádio, a válvulas, e a lamparina, além de um fogão de lenha, fazem parte de minha memória afetiva!  Parabéns, Clebson! Chora, viola!",
+        "date": "2026-02-19T22:05:00-03:00",
+        "ip": "d10f73c8ccadeb5e46afad25c450f64fef2475c439e7bd2ad67e0c156a16b308",
+        "_email": "barulhodeaguamusica@gmail.com",
+        "_whatsapp": "11992590769",
+        "_consent": true,
+        "reply": {
+            "text": "Muito obrigado Marcelino, pedido anotado.",
+            "date": "2026-02-20T12:26:01-03:00"
+        },
+        "_email_sent": true,
+        "_email_attempted": true
+    },
+    {
+        "id": "msg_6997b3c92e4129.41564226",
+        "name": "Marcelino Jesus de Lima",
+        "message": "Memórias de um pé vermelho: você é conterrâneo, moço? Sou de Bela Vista do Paraíso, norte do Paraná, próxima a Londrina! E você?",
+        "date": "2026-02-19T22:07:21-03:00",
+        "ip": "d10f73c8ccadeb5e46afad25c450f64fef2475c439e7bd2ad67e0c156a16b308",
+        "_email": "barulhodeaguamusica@gmail.com",
+        "_whatsapp": "11992590769",
+        "_consent": true,
+        "reply": {
+            "text": "Sou de Guaíra, mas moro atualmente em Curitiba .\nAbraços !",
+            "date": "2026-02-20T12:26:43-03:00"
+        },
+        "_email_sent": true,
+        "_email_attempted": true
+    },
+    {
+        "id": "msg_6998692a6bec19.50504352",
+        "name": "José Paulo",
+        "message": "Que viola chorada , parabéns !",
+        "date": "2026-02-20T11:01:14-03:00",
+        "ip": "8f47ec60bc51a1a686375c7b8bd6759ab6d86fd1161d8cf4663a0a41ac4f2d6c",
+        "reply": {
+            "text": "Valeu! Muito obrigado parceiro!!!",
+            "date": "2026-02-20T12:24:48-03:00"
+        },
+        "_email": "clebson.r@gmail.com",
+        "_whatsapp": "",
+        "_consent": true,
+        "_email_sent": true,
+        "_email_attempted": true
+    },
+    {
+        "id": "msg_6998a7e4879522.45152692",
+        "name": "Simoni Santos",
+        "message": "Que doçura, a última musica, A terra e o tempo, me encheu os olhos d agua.",
+        "date": "2026-02-20T15:28:52-03:00",
+        "ip": "8f47ec60bc51a1a686375c7b8bd6759ab6d86fd1161d8cf4663a0a41ac4f2d6c",
+        "reply": null,
+        "_email": "",
+        "_whatsapp": "",
+        "_consent": false
+    },
+    {
+        "id": "msg_6999b4a0830575.12343771",
+        "name": "Fernanda Farias",
+        "message": "Quando o talento se junta com a viola, se transforma nesse espetáculo de álbum. Que obra prima querido amigo!!!. Parabéns.",
+        "date": "2026-02-21T10:35:28-03:00",
+        "ip": "3eebd20030da504d7e5e2b3a11cb100f879c7c47f142e4ab57cdff05c6751d21",
+        "reply": null,
+        "_email": "",
+        "_whatsapp": "",
+        "_consent": true
+    },
+    {
+        "id": "msg_6999b87adbec59.46546520",
+        "name": "Elis Regina Simões Suniga",
+        "message": "Viagem com seu álbum, maravilhoso. Parabens",
+        "date": "2026-02-21T10:51:54-03:00",
+        "ip": "5195d413b3bd27e2b8ea8a1518ad3dde1b4e27a7bdc0b638e6c0a741bc360211",
+        "reply": {
+            "text": "Muito Obrigado ! :)",
+            "date": "2026-02-23T10:34:39-03:00"
+        },
+        "_email": "elisreginass68@gmail.com",
+        "_whatsapp": "",
+        "_consent": true,
+        "_email_sent": true,
+        "_email_attempted": true
+    },
+    {
+        "id": "msg_6999d2e6569f59.49225285",
+        "name": "JOSE SIMIAO",
+        "message": "Sentado a minha área de casa, curtindo todas as faixas, arranjos lindos e um violeiro dos mais refinados e talentosos desse Brasil,que é vc Clebson,sucesso e avante, o Brasil inteiro ainda vai ouvir falar do seu projeto e da sua viola.",
+        "date": "2026-02-21T12:44:38-03:00",
+        "ip": "7722e76b548624f2423f33bd3c0e97d88691aac07978370a7d6313f0307145d8",
+        "reply": {
+            "text": "Muito obrigado meu querido !  :)",
+            "date": "2026-02-23T17:42:09-03:00"
+        },
+        "_email": "Symon1971@hotmail.com",
+        "_whatsapp": "43984231349",
+        "_consent": true,
+        "_email_sent": true,
+        "_email_attempted": true
+    },
+    {
+        "id": "msg_699cffb4ed8041.59100948",
+        "name": "Welington Batista",
+        "message": "Ouvi o álbum enviado via e-mail e achei muito bem cuidado e de muito bom gosto. Gostaria de um contato caso haja interesse de sua parte em cessão de uso de suas obras para uso em trilha incidental e trilha temática de filmes onde exerço a condição de 'sound designer'. Obrigado.",
+        "date": "2026-02-23T22:32:36-03:00",
+        "ip": "605581f6f62f32cba4b644c2f32991b070f5ca65dd661499143a398410126ebf",
+        "reply": null,
+        "_email": "welingtonbatista@gmail.com",
+        "_whatsapp": "21998250002",
+        "_consent": true
+    },
+    {
+        "id": "msg_699f07d434b034.36941350",
+        "name": "Luiz Aurélio Virtuoso",
+        "message": "A música faz parte do ser humano! Mas poucos conseguem transformar o humano em algo sublime e que pode ser compartilhado! O Clebson consegue! Obra prima! Muito obrigado por ter a oportunidade a voltar as raízes do meu ser humano!",
+        "date": "2026-02-25T11:31:48-03:00",
+        "ip": "34b5d6ba958e6007148b7ddeedd98eda75f3a76c83116562b43950a742653cd9",
+        "reply": {
+            "text": "Gratidão imensa pelas palavras. Que a música continue nos conectando às nossas raízes.",
+            "date": "2026-02-28T09:42:12-03:00"
+        },
+        "_email": "",
+        "_whatsapp": "",
+        "_consent": true,
+        "_email_sent": false,
+        "_email_attempted": false
+    },
+    {
+        "id": "msg_699f23402622a9.36461392",
+        "name": "Queila Matitz",
+        "message": "O som da troca de estação no rádio é muito minha infância… músicas lindas, tocadas lindamente!",
+        "date": "2026-02-25T13:28:48-03:00",
+        "ip": "bc4fdd9150fbbeb13df2ba77ee2eb29d057be04a46a0a00a7d3bcb09f2b32959",
+        "reply": {
+            "text": "Que lembrança linda! O rádio tem esse poder de guardar nossa infância. Obrigado por compartilhar.",
+            "date": "2026-02-28T09:55:56-03:00"
+        },
+        "_email": "",
+        "_whatsapp": "",
+        "_consent": true,
+        "_email_sent": false,
+        "_email_attempted": false
+    },
+    {
+        "id": "msg_699f50e03a47a6.19798250",
+        "name": "Simone Didonet",
+        "message": "Emocionante viagem no tempo! Lembrança de meu pai, sentado na varanda da casa, no fim de tarde e depois da lida na roça, ouvindo música caipira no seu rádio de pilha  \"confortavelmente\" apoiado no ombro p ouvir melhor a música devido aos chiados.",
+        "date": "2026-02-25T16:43:28-03:00",
+        "ip": "10f822118991f14250a4302a7f05bc45427c3960c35492f2d014efa95da1cde0",
+        "reply": {
+            "text": "Obrigado por compartilhar essa memória tão bonita. Que a música siga sendo ponte entre você e essa lembrança.",
+            "date": "2026-02-28T09:55:13-03:00"
+        },
+        "_email": "",
+        "_whatsapp": "",
+        "_consent": true,
+        "_email_sent": false,
+        "_email_attempted": false
+    },
+    {
+        "id": "msg_699f5c14aac4f6.97178083",
+        "name": "Juliana",
+        "message": "Uma viagem no tempo em que acessei minha criança feliz, sentada na varanda, ouvindo boas músicas com meus pais e avós. \n\nParabéns pelo repertório emocionante!",
+        "date": "2026-02-25T17:31:16-03:00",
+        "ip": "d52d9a1a84beb369de86f719e5f9cd71ee7bf7b29fda3ba54d2d79492ca64f2c",
+        "reply": {
+            "text": "Gratidão por compartilhar essa memória tão bonita. A música tem esse poder de nos levar de volta ao que mais importa.",
+            "date": "2026-02-28T09:57:03-03:00"
+        },
+        "_email": "julianamoreirassnto@gmail.com",
+        "_whatsapp": "",
+        "_consent": true,
+        "_email_sent": true,
+        "_email_attempted": true
+    },
+    {
+        "id": "msg_69a31335afffe1.03990434",
+        "name": "Inesita a mãe feliz 💗",
+        "message": "Parabéns meu filho, por esse maravilhoso disco, são lindas memórias eu viajo nessas canções quando eu tinha 5 anos já ouvia  no rádio do meu pai, e a vida, me deu um grande presente  você filho, gratidão",
+        "date": "2026-02-28T13:09:25-03:00",
+        "ip": "b9007592cda2cad2ff6be1f454c3465c4403d11f848e9e07ebd8def9071b578b",
+        "reply": null,
+        "_email": "inesitaecesar@gmail.com",
+        "_whatsapp": "44997737281",
+        "_consent": true
+    }
+]

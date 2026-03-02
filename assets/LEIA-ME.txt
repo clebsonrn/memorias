@@ -1,0 +1,18 @@
+INSTRUÇÕES
+==========
+
+Esta pasta deve conter os arquivos de imagem e efeitos sonoros.
+
+Copie os seguintes arquivos de /var/www/memorias/assets/:
+
+1. radio.png (imagem do rádio vintage)
+2. radio_tunning.mp3 (efeito de sintonia curto)
+3. radio_tunning-2-segundos.mp3 (efeito de aquecimento)
+
+Para copiar automaticamente, execute:
+  ./copy-files.sh
+
+Ou copie manualmente:
+  cp /var/www/memorias/assets/radio.png assets/
+  cp /var/www/memorias/assets/radio_tunning.mp3 assets/
+  cp /var/www/memorias/assets/radio_tunning-2-segundos.mp3 assets/

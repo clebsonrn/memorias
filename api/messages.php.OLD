@@ -1,0 +1,273 @@
+<?php
+/**
+ * API de Mensagens - Memórias de um Pé Vermelho
+ * Sistema seguro com reCAPTCHA v3, rate limit e filtro de palavrões
+ */
+
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Origin: https://memorias.clebsonribeiro.com.br');
+header('Access-Control-Allow-Methods: GET, POST');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// ============================================================
+// CONFIGURAÇÕES
+// ============================================================
+
+define('RECAPTCHA_SECRET',  '6Lc5im0sAAAAALq78aiXvG_ToBTWhDjy94JinCU9');
+define('RECAPTCHA_MIN_SCORE', 0.5);          // Score mínimo (0.0 a 1.0)
+define('RATE_LIMIT_HOURS', 0);               // Horas entre mensagens por IP
+define('MESSAGES_PER_PAGE', 10);             // Mensagens por página
+define('MAX_CHARS', 280);                    // Máximo de caracteres
+define('MIN_CHARS', 10);                     // Mínimo de caracteres
+define('DATA_FILE', __DIR__ . '/messages.json');
+define('RATE_FILE', __DIR__ . '/rate_limit.json');
+
+// ============================================================
+// FILTRO DE PALAVRÕES (lista básica PT-BR)
+// ============================================================
+
+$badwords = [
+    'merda', 'porra', 'caralho', 'buceta', 'foder', 'fodase',
+    'puta', 'viado', 'cuzão', 'cú', 'cu', 'desgraça', 'filha da puta',
+    'filho da puta', 'fdp', 'vadia', 'arrombado', 'babaca',
+    'idiota', 'imbecil', 'retardado', 'otário', 'lixo',
+];
+
+function filterBadWords(string $text, array $badwords): string {
+    foreach ($badwords as $word) {
+        $stars = str_repeat('*', mb_strlen($word));
+        $text = preg_replace('/\b' . preg_quote($word, '/') . '\b/iu', $stars, $text);
+    }
+    return $text;
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+
+function getIP(): string {
+    $ip = $_SERVER['HTTP_X_FORWARDED_FOR']
+        ?? $_SERVER['HTTP_CLIENT_IP']
+        ?? $_SERVER['REMOTE_ADDR']
+        ?? '0.0.0.0';
+    // Pega só o primeiro IP se vier lista
+    return trim(explode(',', $ip)[0]);
+}
+
+function hashIP(string $ip): string {
+    return hash('sha256', $ip . 'memorias_salt_2026');
+}
+
+function loadJSON(string $file, $default) {
+    if (!file_exists($file)) return $default;
+    $data = json_decode(file_get_contents($file), true);
+    return $data ?? $default;
+}
+
+function saveJSON(string $file, $data): void {
+    file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+function respond(bool $success, $data = [], int $code = 200): void {
+    http_response_code($code);
+    echo json_encode(array_merge(['success' => $success], $data), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// ============================================================
+// VERIFICAR RECAPTCHA v3
+// ============================================================
+
+function verifyRecaptcha(string $token): bool {
+    $response = file_get_contents(
+        'https://www.google.com/recaptcha/api/siteverify',
+        false,
+        stream_context_create([
+            'http' => [
+                'method'  => 'POST',
+                'header'  => 'Content-Type: application/x-www-form-urlencoded',
+                'content' => http_build_query([
+                    'secret'   => RECAPTCHA_SECRET,
+                    'response' => $token,
+                    'remoteip' => getIP(),
+                ]),
+                'timeout' => 5,
+            ]
+        ])
+    );
+
+    if (!$response) return false;
+
+    $result = json_decode($response, true);
+
+    return isset($result['success'])
+        && $result['success'] === true
+        && isset($result['score'])
+        && $result['score'] >= RECAPTCHA_MIN_SCORE;
+}
+
+// ============================================================
+// RATE LIMITING
+// ============================================================
+
+function checkRateLimit(string $ipHash): bool {
+    $rates = loadJSON(RATE_FILE, []);
+    $now   = time();
+    $limit = RATE_LIMIT_HOURS * 3600;
+
+    // Limpa entradas antigas
+    $rates = array_filter($rates, fn($ts) => ($now - $ts) < $limit);
+
+    if (isset($rates[$ipHash])) {
+        $wait = $limit - ($now - $rates[$ipHash]);
+        $horas = floor($wait / 3600);
+        $mins  = floor(($wait % 3600) / 60);
+        respond(false, [
+            'error'       => 'rate_limit',
+            'message'     => "Você já enviou uma mensagem recentemente. Aguarde {$horas}h {$mins}min.",
+            'retry_after' => $wait,
+        ], 429);
+    }
+
+    return true;
+}
+
+function registerRateLimit(string $ipHash): void {
+    $rates = loadJSON(RATE_FILE, []);
+    $now   = time();
+    $limit = RATE_LIMIT_HOURS * 3600;
+
+    // Limpa entradas antigas antes de salvar
+    $rates = array_filter($rates, fn($ts) => ($now - $ts) < $limit);
+    $rates[$ipHash] = $now;
+    saveJSON(RATE_FILE, $rates);
+}
+
+// ============================================================
+// ROTAS
+// ============================================================
+
+$method = $_SERVER['REQUEST_METHOD'];
+
+// GET — lista paginada
+if ($method === 'GET') {
+    $page     = max(1, (int)($_GET['page'] ?? 1));
+    $messages = loadJSON(DATA_FILE, []);
+
+    // Mais recente primeiro
+    $messages = array_reverse($messages);
+
+    $total    = count($messages);
+    $pages    = max(1, (int)ceil($total / MESSAGES_PER_PAGE));
+    $offset   = ($page - 1) * MESSAGES_PER_PAGE;
+    $slice    = array_slice($messages, $offset, MESSAGES_PER_PAGE);
+
+    // Remove campos privados antes de retornar ao público
+    $public = array_map(function($m) {
+        return [
+            'id'      => $m['id'],
+            'name'    => $m['name'],
+            'message' => $m['message'],
+            'date'    => $m['date'],
+        ];
+    }, $slice);
+
+    respond(true, [
+        'messages'     => array_values($public),
+        'total'        => $total,
+        'page'         => $page,
+        'pages'        => $pages,
+        'per_page'     => MESSAGES_PER_PAGE,
+    ]);
+}
+
+// POST — nova mensagem
+if ($method === 'POST') {
+    global $badwords;
+
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    // --- Honeypot check ---
+    if (!empty($input['website'])) {
+        respond(false, ['error' => 'spam'], 400);
+    }
+
+    // --- Campos ---
+    $name     = trim(strip_tags($input['name']            ?? ''));
+    $message  = trim(strip_tags($input['message']         ?? ''));
+    $email    = trim(strip_tags($input['email']           ?? ''));
+    $whatsapp = trim(strip_tags($input['whatsapp']        ?? ''));
+    $consent  = !empty($input['consent']);
+    $token    = trim($input['recaptcha_token']            ?? '');
+
+    // --- Obrigatórios ---
+    if (empty($name) || empty($message) || empty($token)) {
+        respond(false, ['error' => 'missing_fields', 'message' => 'Preencha todos os campos obrigatórios.'], 400);
+    }
+
+    // --- Tamanhos ---
+    if (mb_strlen($name) > 50) {
+        respond(false, ['error' => 'invalid', 'message' => 'Nome muito longo.'], 400);
+    }
+
+    if (mb_strlen($message) < MIN_CHARS) {
+        respond(false, ['error' => 'invalid', 'message' => 'Mensagem muito curta. Mínimo ' . MIN_CHARS . ' caracteres.'], 400);
+    }
+
+    if (mb_strlen($message) > MAX_CHARS) {
+        respond(false, ['error' => 'invalid', 'message' => 'Mensagem muito longa. Máximo ' . MAX_CHARS . ' caracteres.'], 400);
+    }
+
+    // --- Valida email (se informado) ---
+    if (!empty($email) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        respond(false, ['error' => 'invalid', 'message' => 'E-mail inválido.'], 400);
+    }
+
+    // --- Valida WhatsApp (se informado) — só dígitos, 10 ou 11 ---
+    if (!empty($whatsapp)) {
+        $whatsappDigits = preg_replace('/\D/', '', $whatsapp);
+        if (strlen($whatsappDigits) < 10 || strlen($whatsappDigits) > 11) {
+            respond(false, ['error' => 'invalid', 'message' => 'WhatsApp inválido.'], 400);
+        }
+        $whatsapp = $whatsappDigits;
+    }
+
+    // --- Rate limit ---
+    $ipHash = hashIP(getIP());
+    checkRateLimit($ipHash);
+
+    // --- reCAPTCHA ---
+    if (!verifyRecaptcha($token)) {
+        respond(false, ['error' => 'recaptcha', 'message' => 'Verificação de segurança falhou. Tente novamente.'], 400);
+    }
+
+    // --- Filtro de palavrões ---
+    $name    = filterBadWords($name, $badwords);
+    $message = filterBadWords($message, $badwords);
+
+    // --- Salva mensagem ---
+    $messages = loadJSON(DATA_FILE, []);
+
+    $messages[] = [
+        'id'       => uniqid('msg_', true),
+        'name'     => $name,
+        'message'  => $message,
+        'date'     => date('c'),
+        'ip'       => $ipHash,
+        // Dados de contato — privados, nunca retornados no GET
+        '_email'   => $email,
+        '_whatsapp'=> $whatsapp,
+        '_consent' => $consent,
+    ];
+
+    saveJSON(DATA_FILE, $messages);
+    registerRateLimit($ipHash);
+
+    respond(true, [
+        'message' => 'Mensagem enviada com sucesso!',
+        'total'   => count($messages),
+    ], 201);
+}
+
+// Método não suportado
+respond(false, ['error' => 'method_not_allowed'], 405);

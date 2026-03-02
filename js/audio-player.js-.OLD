@@ -1,0 +1,547 @@
+/**
+ * Audio Player - Memórias de um Pé Vermelho
+ * Sistema de reprodução com efeitos de rádio vintage
+ */
+
+class VintageRadioPlayer {
+    constructor() {
+        // Audio elements
+        this.mainAudio = document.getElementById('mainAudio');
+        this.effectAudio = document.getElementById('effectAudio');
+        
+        // Player state
+        this.isOn = false;
+        this.isPlaying = false;
+        this.currentTrack = 0;
+        this.isFading = false;
+        this.hasCountedPlay = false; // Flag para contar apenas uma vez por música
+        
+        // API endpoint
+        this.apiEndpoint = 'api/play-count.php';
+        
+        // Tracks
+        this.tracks = [
+            { file: 'music/1-Cabocla-Chico_Mineiro-Nhambu_Xita.mp3', name: 'Cabocla / Chico Mineiro / Nhambu Xita' },
+            { file: 'music/2-Romaria.mp3', name: 'Romaria' },
+            { file: 'music/3-Tocando_em_frente.mp3', name: 'Tocando em Frente' },
+            { file: 'music/4-Amargurado.mp3', name: 'Amargurado' },
+            { file: 'music/5-Antonio_e_natalia.mp3', name: 'Antonio e Natália' },
+            { file: 'music/6-Boifuba.mp3', name: 'Vaca Estrela e Boi Fubá' },
+            { file: 'music/7-Disparada.mp3', name: 'Disparada' },
+            { file: 'music/8-Mercedita.mp3', name: 'Mercedita' },
+            { file: 'music/9-Vide_Vida_Marvada.mp3', name: 'Vide Vida Marvada' },
+            { file: 'music/10-A_terra_e_o_Tempo.mp3', name: 'A Terra e o Tempo' }
+        ];
+        
+        // Effect settings
+        this.fadeInDuration = 2000; // 2 segundos
+        this.fadeOutDuration = 1500; // 1.5 segundos
+        this.tuningDuration = 2000; // 2 segundos de sintonia
+        
+        this.init();
+    }
+    
+    init() {
+        // Set initial volume
+        this.mainAudio.volume = 0;
+        
+        // Event listeners
+        this.mainAudio.addEventListener('timeupdate', () => this.updateProgress());
+        this.mainAudio.addEventListener('ended', () => this.playNext());
+        this.mainAudio.addEventListener('loadedmetadata', () => this.updateDuration());
+        
+        // Detecta quando a música tocou significativamente (30 segundos ou 50% do tempo)
+        this.mainAudio.addEventListener('timeupdate', () => this.checkPlayCount());
+        
+        // Progress bar click
+        const progressBar = document.querySelector('.progress-bar');
+        progressBar.addEventListener('click', (e) => this.seekTo(e));
+        
+        // Carrega contagens iniciais
+        this.loadPlayCounts();
+        
+        // Inicializa Media Session API para controles nativos
+        this.initMediaSession();
+        
+        console.log('Vintage Radio Player initialized');
+    }
+    
+    /**
+     * Liga o rádio com efeito de aquecimento
+     */
+    async powerOn() {
+        if (this.isOn) return;
+        
+        this.isOn = true;
+        this.showStatus('Ligando o rádio...');
+        
+        // Visual feedback
+        document.querySelector('.radio-wrapper').classList.add('powered');
+        
+        // Tocar som de aquecimento/sintonia
+        await this.playTuningEffect();
+        
+        // Carregar primeira faixa
+        this.loadTrack(0);
+        this.showStatus('Rádio ligado - Pressione play');
+        
+        // Auto-play após ligar
+        setTimeout(() => {
+            this.play();
+        }, 500);
+    }
+    
+    /**
+     * Desliga o rádio
+     */
+    powerOff() {
+        if (!this.isOn) return;
+        
+        this.isOn = false;
+        this.pause();
+        
+        // Visual feedback
+        document.querySelector('.radio-wrapper').classList.remove('powered');
+        
+        this.showStatus('Rádio desligado');
+        this.updateNowPlaying('-', 'Aguardando...');
+    }
+    
+    /**
+     * Toca o efeito de sintonia do rádio
+     */
+    playTuningEffect() {
+        return new Promise((resolve) => {
+            this.effectAudio.src = 'assets/radio_tunning-2-segundos.mp3';
+            this.effectAudio.volume = 0.4;
+            this.effectAudio.play();
+            
+            setTimeout(resolve, this.tuningDuration);
+        });
+    }
+    
+    /**
+     * Carrega uma faixa específica
+     */
+    loadTrack(index) {
+        if (index < 0 || index >= this.tracks.length) return;
+        
+        this.currentTrack = index;
+        this.mainAudio.src = this.tracks[index].file;
+        this.hasCountedPlay = false; // Reset flag para nova música
+        
+        // Update UI
+        this.updateNowPlaying(index + 1, this.tracks[index].name);
+        this.updateTracklistUI();
+        
+        // Atualiza Media Session com nova faixa
+        this.updateMediaSessionMetadata();
+    }
+    
+    /**
+     * Carrega contagens de reproduções do servidor
+     */
+    async loadPlayCounts() {
+        try {
+            const response = await fetch(this.apiEndpoint);
+            const data = await response.json();
+            
+            if (data.success && data.counts) {
+                this.updatePlayCountsUI(data.counts);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar contagens:', error);
+        }
+    }
+    
+    /**
+     * Atualiza UI com as contagens
+     */
+    updatePlayCountsUI(counts) {
+        Object.keys(counts).forEach(trackId => {
+            const countElement = document.querySelector(`.play-count[data-count-id="${trackId}"] .count-number`);
+            if (countElement) {
+                countElement.textContent = counts[trackId];
+            }
+        });
+    }
+    
+    /**
+     * Verifica se deve contar uma reprodução
+     * Conta quando: tocou por 30s OU 50% da música
+     */
+    checkPlayCount() {
+        if (this.hasCountedPlay || !this.isPlaying) return;
+        
+        const currentTime = this.mainAudio.currentTime;
+        const duration = this.mainAudio.duration;
+        
+        // Conta se tocou 30 segundos OU 50% da música
+        if (currentTime >= 30 || (duration > 0 && currentTime >= duration * 0.5)) {
+            this.hasCountedPlay = true;
+            this.registerPlay(this.currentTrack);
+        }
+    }
+    
+    /**
+     * Registra uma reprodução no servidor
+     */
+    async registerPlay(trackId) {
+        try {
+            const response = await fetch(this.apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ trackId: trackId.toString() })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.allCounts) {
+                this.updatePlayCountsUI(data.allCounts);
+                console.log(`Play registrado: Faixa ${trackId} - Total: ${data.count}`);
+            }
+        } catch (error) {
+            console.error('Erro ao registrar play:', error);
+        }
+    }
+    
+    /**
+     * Inicializa Media Session API para controles nativos do sistema
+     * Permite controle com tela bloqueada e em notificações
+     */
+    initMediaSession() {
+        if ('mediaSession' in navigator) {
+            // Configura handlers para controles nativos
+            navigator.mediaSession.setActionHandler('play', () => {
+                this.play();
+            });
+            
+            navigator.mediaSession.setActionHandler('pause', () => {
+                this.pause();
+            });
+            
+            navigator.mediaSession.setActionHandler('previoustrack', () => {
+                this.playPrevious();
+            });
+            
+            navigator.mediaSession.setActionHandler('nexttrack', () => {
+                this.playNext();
+            });
+            
+            // Seek (opcional, alguns dispositivos suportam)
+            try {
+                navigator.mediaSession.setActionHandler('seekbackward', () => {
+                    this.mainAudio.currentTime = Math.max(0, this.mainAudio.currentTime - 10);
+                });
+                
+                navigator.mediaSession.setActionHandler('seekforward', () => {
+                    this.mainAudio.currentTime = Math.min(this.mainAudio.duration, this.mainAudio.currentTime + 10);
+                });
+            } catch (error) {
+                // Alguns navegadores não suportam seek
+                console.log('Seek não suportado neste navegador');
+            }
+            
+            console.log('Media Session API inicializada');
+        } else {
+            console.log('Media Session API não suportada neste navegador');
+        }
+    }
+    
+    /**
+     * Atualiza metadados da Media Session (mostra na notificação e lock screen)
+     */
+    updateMediaSessionMetadata() {
+        if ('mediaSession' in navigator) {
+            const track = this.tracks[this.currentTrack];
+            
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: track.name,
+                artist: 'Clebson Ribeiro',
+                album: 'Memórias de um Pé Vermelho',
+                artwork: [
+                    { src: 'assets/radio.png', sizes: '96x96', type: 'image/png' },
+                    { src: 'assets/radio.png', sizes: '128x128', type: 'image/png' },
+                    { src: 'assets/radio.png', sizes: '192x192', type: 'image/png' },
+                    { src: 'assets/radio.png', sizes: '256x256', type: 'image/png' },
+                    { src: 'assets/radio.png', sizes: '384x384', type: 'image/png' },
+                    { src: 'assets/radio.png', sizes: '512x512', type: 'image/png' }
+                ]
+            });
+            
+            // Atualiza estado de playback
+            navigator.mediaSession.playbackState = this.isPlaying ? 'playing' : 'paused';
+        }
+    }
+    
+    /**
+     * Play com fade in
+     */
+    async play() {
+        if (!this.isOn || this.isFading) return;
+        
+        try {
+            await this.mainAudio.play();
+            this.isPlaying = true;
+            
+            // Atualiza Media Session
+            this.updateMediaSessionMetadata();
+            
+            // Fade in suave
+            this.fadeIn();
+            
+        } catch (error) {
+            console.error('Erro ao reproduzir:', error);
+            this.showStatus('Erro ao reproduzir a faixa');
+        }
+    }
+    
+    /**
+     * Pause
+     */
+    pause() {
+        if (!this.isPlaying) return;
+        
+        this.mainAudio.pause();
+        this.isPlaying = false;
+        
+        // Atualiza Media Session
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = 'paused';
+        }
+    }
+    
+    /**
+     * Toggle play/pause
+     */
+    togglePlay() {
+        if (!this.isOn) {
+            this.showStatus('Ligue o rádio primeiro!');
+            return;
+        }
+        
+        if (this.isPlaying) {
+            this.pause();
+        } else {
+            this.play();
+        }
+    }
+    
+    /**
+     * Próxima faixa com transição
+     */
+    async playNext() {
+        if (this.isFading) return;
+        
+        await this.fadeOut();
+        
+        // Tocar efeito de sintonia
+        this.playTransitionEffect();
+        
+        // Próxima faixa (loop ao final)
+        const nextTrack = (this.currentTrack + 1) % this.tracks.length;
+        this.loadTrack(nextTrack);
+        
+        setTimeout(() => {
+            this.play();
+        }, 800);
+    }
+    
+    /**
+     * Faixa anterior com transição
+     */
+    async playPrevious() {
+        if (this.isFading) return;
+        
+        await this.fadeOut();
+        
+        // Tocar efeito de sintonia
+        this.playTransitionEffect();
+        
+        // Faixa anterior (loop ao início)
+        const prevTrack = this.currentTrack === 0 ? this.tracks.length - 1 : this.currentTrack - 1;
+        this.loadTrack(prevTrack);
+        
+        setTimeout(() => {
+            this.play();
+        }, 800);
+    }
+    
+    /**
+     * Efeito de transição entre faixas (mais curto)
+     */
+    playTransitionEffect() {
+        this.effectAudio.src = 'assets/radio_tunning.mp3';
+        this.effectAudio.volume = 0.3;
+        this.effectAudio.play();
+    }
+    
+    /**
+     * Fade in gradual
+     */
+    fadeIn() {
+        this.isFading = true;
+        const startVolume = 0;
+        const endVolume = 1;
+        const steps = 40;
+        const stepDuration = this.fadeInDuration / steps;
+        const volumeIncrement = (endVolume - startVolume) / steps;
+        
+        let currentStep = 0;
+        this.mainAudio.volume = startVolume;
+        
+        const fadeInterval = setInterval(() => {
+            currentStep++;
+            this.mainAudio.volume = Math.min(startVolume + (volumeIncrement * currentStep), endVolume);
+            
+            if (currentStep >= steps) {
+                clearInterval(fadeInterval);
+                this.isFading = false;
+            }
+        }, stepDuration);
+    }
+    
+    /**
+     * Fade out gradual
+     */
+    fadeOut() {
+        return new Promise((resolve) => {
+            this.isFading = true;
+            const startVolume = this.mainAudio.volume;
+            const endVolume = 0;
+            const steps = 30;
+            const stepDuration = this.fadeOutDuration / steps;
+            const volumeDecrement = startVolume / steps;
+            
+            let currentStep = 0;
+            
+            const fadeInterval = setInterval(() => {
+                currentStep++;
+                this.mainAudio.volume = Math.max(startVolume - (volumeDecrement * currentStep), endVolume);
+                
+                if (currentStep >= steps) {
+                    clearInterval(fadeInterval);
+                    this.pause();
+                    this.isFading = false;
+                    resolve();
+                }
+            }, stepDuration);
+        });
+    }
+    
+    /**
+     * Atualiza a barra de progresso
+     */
+    updateProgress() {
+        if (!this.mainAudio.duration) return;
+        
+        const percent = (this.mainAudio.currentTime / this.mainAudio.duration) * 100;
+        document.getElementById('progressFill').style.width = percent + '%';
+        
+        // Update time display
+        document.getElementById('currentTime').textContent = this.formatTime(this.mainAudio.currentTime);
+    }
+    
+    /**
+     * Atualiza duração total
+     */
+    updateDuration() {
+        document.getElementById('totalTime').textContent = this.formatTime(this.mainAudio.duration);
+    }
+    
+    /**
+     * Seek para posição específica
+     */
+    seekTo(e) {
+        if (!this.mainAudio.duration) return;
+        
+        const progressBar = e.currentTarget;
+        const clickX = e.offsetX;
+        const width = progressBar.offsetWidth;
+        const percent = clickX / width;
+        
+        this.mainAudio.currentTime = this.mainAudio.duration * percent;
+    }
+    
+    /**
+     * Formata tempo em mm:ss
+     */
+    formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    /**
+     * Atualiza informações da faixa atual
+     */
+    updateNowPlaying(number, name) {
+        document.getElementById('trackNumber').textContent = number;
+        document.getElementById('trackName').textContent = name;
+    }
+    
+    /**
+     * Atualiza UI da tracklist
+     */
+    updateTracklistUI() {
+        const items = document.querySelectorAll('.tracklist li');
+        items.forEach((item, index) => {
+            if (index === this.currentTrack) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+    
+    /**
+     * Mostra mensagem de status temporária
+     */
+    showStatus(message) {
+        const status = document.getElementById('radioStatus');
+        const statusText = status.querySelector('.status-text');
+        
+        statusText.textContent = message;
+        status.classList.add('show');
+        
+        setTimeout(() => {
+            status.classList.remove('show');
+        }, 3000);
+    }
+    
+    /**
+     * Toca faixa específica da tracklist
+     */
+    async playTrack(index) {
+        if (!this.isOn) {
+            this.showStatus('Ligue o rádio primeiro!');
+            return;
+        }
+        
+        if (index === this.currentTrack && this.isPlaying) {
+            return; // Já está tocando essa faixa
+        }
+        
+        // Se estava tocando, fade out primeiro
+        if (this.isPlaying) {
+            await this.fadeOut();
+            this.playTransitionEffect();
+            await new Promise(resolve => setTimeout(resolve, 800));
+        }
+        
+        this.loadTrack(index);
+        this.play();
+    }
+}
+
+// Inicializar player ao carregar página
+let player;
+
+document.addEventListener('DOMContentLoaded', () => {
+    player = new VintageRadioPlayer();
+    console.log('Player carregado e pronto!');
+});

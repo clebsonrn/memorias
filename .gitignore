@@ -1,0 +1,14 @@
+# Credenciais e dados sensíveis
+api/config-mp.php
+api/donations.json
+api/supporters-count.json
+api/debug.log
+
+# Arquivos temporários
+*.log
+*.bak
+*-old.php
+
+# Sistema
+.DS_Store
+.env

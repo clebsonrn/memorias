@@ -1,0 +1,53 @@
+# Memórias de um Pé Vermelho - Rewrite Rules
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # Sitemap dinâmico
+    RewriteRule ^sitemap\.xml$ sitemap.php [L]
+    
+    # Página individual de mensagem
+    # /mensagem/msg_123 → mensagem.php
+    RewriteRule ^mensagem/([a-zA-Z0-9_\.]+)$ mensagem.php [L,QSA]
+    
+    # Feed de mensagens
+    # /mensagens → mensagens.php
+    RewriteRule ^mensagens/?$ mensagens.php [L,QSA]
+    
+    # Paginação do feed
+    # /mensagens/2 → mensagens.php?page=2
+    RewriteRule ^mensagens/([0-9]+)$ mensagens.php?page=$1 [L,QSA]
+</IfModule>
+
+# Proteção de arquivos sensíveis
+<FilesMatch "(messages\.json|rate_limit\.json|play-counts\.json)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Habilita compressão
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# Cache de assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType audio/mpeg "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
+
+# UTF-8
+AddDefaultCharset UTF-8
+
+# Segurança
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
