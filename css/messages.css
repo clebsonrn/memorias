@@ -1,9 +1,7 @@
 /* ============================================================
    SEÇÃO DE MENSAGENS — identidade vintage do projeto
-   Adicione ao final do style.css existente
    ============================================================ */
 
-/* Container principal da seção */
 .messages-section {
     max-width: 700px;
     margin: 60px auto;
@@ -11,7 +9,6 @@
     animation: fadeIn 2s ease-in 1s both;
 }
 
-/* Títulos */
 .messages-title {
     font-size: 1.4rem;
     color: #f4e4c1;
@@ -98,7 +95,6 @@
     line-height: 1.6;
 }
 
-/* Contador de caracteres */
 .char-counter {
     position: absolute;
     bottom: 10px;
@@ -112,7 +108,6 @@
 .char-counter.warning { color: #c9a030; }
 .char-counter.error   { color: #cc4040; }
 
-/* Feedback do formulário */
 .form-feedback {
     padding: 12px 15px;
     border-radius: 8px;
@@ -132,7 +127,6 @@
     color: #90cc90;
 }
 
-/* Botão enviar */
 .submit-btn {
     background: linear-gradient(135deg, #ff7820 0%, #ffa040 100%);
     color: #fff;
@@ -159,7 +153,6 @@
     transform: none;
 }
 
-/* Aviso reCAPTCHA */
 .recaptcha-notice {
     font-size: 0.75rem;
     color: #6a5a4a;
@@ -171,17 +164,11 @@
     text-decoration: none;
 }
 
-.recaptcha-notice a:hover {
-    color: #c9b896;
-}
+.recaptcha-notice a:hover { color: #c9b896; }
 
 /* ============================================================
    FEED DE MENSAGENS
    ============================================================ */
-
-.messages-feed-wrapper {
-    /* separação visual do formulário */
-}
 
 .feed-header {
     display: flex;
@@ -198,7 +185,6 @@
     font-style: italic;
 }
 
-/* Estado de carregando */
 .messages-loading,
 .messages-empty {
     text-align: center;
@@ -208,7 +194,7 @@
     font-size: 0.95rem;
 }
 
-/* Cards de mensagens */
+/* Cards */
 .message-card {
     background: rgba(20, 15, 10, 0.6);
     border: 1px solid rgba(200, 170, 120, 0.15);
@@ -233,17 +219,17 @@
     font-style: italic;
 }
 
+/* ✅ flex-wrap aqui garante que badge e data quebrem linha se necessário */
 .message-author {
     font-size: 0.85rem;
     color: #8a7a6a;
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 6px;
 }
 
-.author-icon {
-    font-size: 0.9rem;
-}
+.author-icon { font-size: 0.9rem; }
 
 .message-author strong {
     color: #c9b896;
@@ -254,6 +240,35 @@
     color: #6a5a4a;
     font-size: 0.8rem;
     margin-left: auto;
+}
+
+/* ============================================================
+   BADGE APOIADOR
+   ============================================================ */
+
+.supporter-badge {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, #8B4513, #A0522D);
+    color: #FFF8DC;
+    font-size: 0.68rem;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 12px;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 6px rgba(139, 69, 19, 0.35);
+    white-space: nowrap;
+    flex-shrink: 0; /* ✅ nunca encolhe em flex */
+}
+
+/* Card com borda dourada para apoiadores */
+.message-card--supporter {
+    border-left-color: #D4A017 !important;
+    background: rgba(25, 18, 8, 0.7) !important;
+}
+
+.message-card--supporter:hover {
+    border-left-color: #F0B429 !important;
 }
 
 /* ============================================================
@@ -300,15 +315,13 @@
 }
 
 /* ============================================================
-   OCULTAR BADGE reCAPTCHA (mantemos o aviso textual)
+   OCULTAR BADGE reCAPTCHA
    ============================================================ */
 
-.grecaptcha-badge {
-    visibility: hidden !important;
-}
+.grecaptcha-badge { visibility: hidden !important; }
 
 /* ============================================================
-   RESPONSIVE
+   RESPONSIVE — bloco único, sem duplicação
    ============================================================ */
 
 @media (max-width: 600px) {
@@ -335,11 +348,23 @@
         gap: 4px;
     }
 
+    /* ✅ autor vira coluna no mobile, badge fica visível */
+    .message-author {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .supporter-badge {
+        font-size: 0.62rem;
+        padding: 2px 6px;
+        margin-left: 0; /* ✅ remove deslocamento horizontal */
+    }
+
     .message-date {
         margin-left: 0;
-        display: block;
         width: 100%;
-        margin-top: 4px;
+        margin-top: 2px;
     }
 
     .pagination {

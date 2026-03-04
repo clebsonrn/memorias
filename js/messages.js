@@ -213,39 +213,45 @@ const Messages = (() => {
     // --------------------------------------------------------
 
     function renderCard(msg) {
-        const date = formatDate(msg.date);
-        // Sanitiza para exibição
-        const name    = escapeHTML(msg.name);
-        const message = escapeHTML(msg.message);
+    const date    = formatDate(msg.date);
+    const name    = escapeHTML(msg.name);
+    const message = escapeHTML(msg.message);
 
-        let html = `
-            <div class="message-card">
-                <p class="message-text">"${message}"</p>
-                <p class="message-author">
-                    <span class="author-icon">🌾</span>
-                    <strong>${name}</strong>
-                    <span class="message-date">${date}</span>
-                </p>`;
-        
-        // Adiciona resposta do artista se houver
-        if (msg.reply && msg.reply.text) {
-            const replyText = escapeHTML(msg.reply.text).replace(/\n/g, '<br>');
-            const replyDate = formatDate(msg.reply.date);
-            
-            html += `
-                <div class="message-reply">
-                    <div class="reply-header">
-                        <span class="reply-author-icon">🎵</span>
-                        <span class="reply-author">Clebson Ribeiro</span>
-                    </div>
-                    <p class="reply-text">${replyText}</p>
-                    <div class="reply-date">${replyDate}</div>
-                </div>`;
-        }
-        
-        html += `</div>`;
-        return html;
+    // 🆕 Badge de apoiador
+    const badge = msg.is_supporter
+        ? `<span class="supporter-badge">💛 APOIADOR #${msg.supporter_position || ''}</span>`
+        : '';
+
+    // 🆕 Card com borda dourada para apoiadores
+    const cardClass = msg.is_supporter ? 'message-card message-card--supporter' : 'message-card';
+
+    let html = `
+        <div class="${cardClass}">
+            <p class="message-text">"${message}"</p>
+            <p class="message-author">
+                <span class="author-icon">🌾</span>
+                <strong>${name}</strong>
+                ${badge}
+                <span class="message-date">${date}</span>
+            </p>`;
+
+    if (msg.reply && msg.reply.text) {
+        const replyText = escapeHTML(msg.reply.text).replace(/\n/g, '<br>');
+        const replyDate = formatDate(msg.reply.date);
+        html += `
+            <div class="message-reply">
+                <div class="reply-header">
+                    <span class="reply-author-icon">🎵</span>
+                    <span class="reply-author">Clebson Ribeiro</span>
+                </div>
+                <p class="reply-text">${replyText}</p>
+                <div class="reply-date">${replyDate}</div>
+            </div>`;
     }
+
+    html += `</div>`;
+    return html;
+}
 
     // --------------------------------------------------------
     // PAGINAÇÃO
