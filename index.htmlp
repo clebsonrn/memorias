@@ -305,23 +305,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         
         // Quando clicar em "Tocar Agora"
         if (startBtn) {
-    startBtn.addEventListener('click', function() {
-        // GTM - Evento "Tocar Agora"
-       if (window.dataLayer) {
-        dataLayer.push({ event: 'tocar_agora' });
-       }
-       if (window.gtag) {
-       gtag('event', 'tocar_agora');
-       }
-
-        localStorage.setItem(STORAGE_KEY, 'true');
-        overlay.style.transition = 'opacity 0.3s';
-        overlay.style.opacity = '0';
-        setTimeout(() => {
-            overlay.style.display = 'none';
-        }, 300);
-    });
-}
+            startBtn.addEventListener('click', function() {
+                localStorage.setItem(STORAGE_KEY, 'true');
+                overlay.style.transition = 'opacity 0.3s';
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 300);
+            });
+        }
         
         // Clique fora do modal também fecha (opcional)
         overlay.addEventListener('click', function(e) {

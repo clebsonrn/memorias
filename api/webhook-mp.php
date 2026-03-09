@@ -2,7 +2,7 @@
 /**
  * Webhook Mercado Pago
  * Recebe notificações de pagamento
- * v2.0 - Suporte formato novo e antigo
+ * v2.1 - Adiciona chamada ao matchSupporter após aprovar
  */
 
 require_once __DIR__ . '/config-mp.php';
@@ -54,13 +54,9 @@ if (isset($data['type']) && isset($data['data']['id'])) {
 // Formato ANTIGO: {"topic":"payment","resource":".../123"}
 elseif (isset($data['topic']) && isset($data['resource'])) {
     $type = $data['topic'];
-    if (preg_match('/\/(\d+)$/', $data['resource'], $m)) {
+    if (preg_match('/(\d+)$/', $data['resource'], $m)) {
         $id = $m[1];
     }
-}
-
-if (preg_match('/(\d+)$/', $data['resource'], $m)) {
-    $id = $m[1];
 }
 
 // =====================================================
@@ -71,7 +67,7 @@ $validTypes = ['payment', 'merchant_order'];
 
 if (!in_array($type, $validTypes)) {
     logDebug('Tipo ignorado', ['type' => $type]);
-    http_response_code(200); // evita reenvio
+    http_response_code(200);
     exit;
 }
 
@@ -148,61 +144,62 @@ function getPaymentInfo($paymentId) {
 function processApprovedPayment($paymentInfo) {
 
     $externalReference = $paymentInfo['external_reference'] ?? null;
-    $payerId = $paymentInfo['payer']['id'] ?? null;
-    $payerEmail = $paymentInfo['payer']['email'] ?? null;
-    $amount = $paymentInfo['transaction_amount'] ?? 0;
-    $paymentId = $paymentInfo['id'];
+    $payerId           = $paymentInfo['payer']['id'] ?? null;
+    $payerEmail        = $paymentInfo['payer']['email'] ?? null;
+    $amount            = $paymentInfo['transaction_amount'] ?? 0;
+    $paymentId         = $paymentInfo['id'];
 
     logDebug('Pagamento aprovado', [
-        'payment_id' => $paymentId,
+        'payment_id'   => $paymentId,
         'external_ref' => $externalReference,
-        'amount' => $amount
+        'amount'       => $amount
     ]);
 
     $donations = loadJSON(DONATIONS_FILE, []);
 
-    $found = false;
+    $found      = false;
+    $donationId = null;
 
     foreach ($donations as &$donation) {
         if ($externalReference && $donation['id'] === $externalReference) {
 
-            $donation['status'] = 'approved';
-            $donation['payment_id'] = $paymentId;
-            $donation['approved_at'] = date('c');
-            $donation['payer_email'] = $payerEmail;
-            $donation['payer_id'] = $payerId;
+            $donation['status']       = 'approved';
+            $donation['payment_id']   = $paymentId;
+            $donation['approved_at']  = date('c');
+            $donation['payer_email']  = $payerEmail;
+            $donation['payer_id']     = $payerId;
             $donation['final_amount'] = $amount;
 
+            $donationId = $donation['id'];
             $found = true;
 
-            logDebug('Doação atualizada', [
-                'donation_id' => $donation['id']
-            ]);
-
+            logDebug('Doação atualizada', ['donation_id' => $donation['id']]);
             break;
         }
     }
+    unset($donation);
 
     if (!$found) {
 
-        logDebug('Criando nova doação', [
-            'external_ref' => $externalReference
-        ]);
+        logDebug('Criando nova doação', ['external_ref' => $externalReference]);
 
-        $donations[] = [
-            'id' => $externalReference ?? generateId('don'),
+        $newDonation = [
+            'id'            => $externalReference ?? generateId('don'),
             'preference_id' => $paymentInfo['preference_id'] ?? null,
-            'payment_id' => $paymentId,
-            'amount' => $amount,
-            'final_amount' => $amount,
-            'email' => $payerEmail,
-            'payer_email' => $payerEmail,
-            'payer_id' => $payerId,
-            'fingerprint' => null,
-            'status' => 'approved',
-            'created_at' => date('c'),
-            'approved_at' => date('c')
+            'payment_id'    => $paymentId,
+            'amount'        => $amount,
+            'final_amount'  => $amount,
+            'email'         => null,
+            'payer_email'   => $payerEmail,
+            'payer_id'      => $payerId,
+            'fingerprint'   => null,
+            'status'        => 'approved',
+            'created_at'    => date('c'),
+            'approved_at'   => date('c')
         ];
+
+        $donationId = $newDonation['id'];
+        $donations[] = $newDonation;
     }
 
     if (saveJSON(DONATIONS_FILE, $donations)) {
@@ -210,6 +207,13 @@ function processApprovedPayment($paymentInfo) {
         logDebug('Doações salvas');
 
         updateSupportersCount();
+
+        // ← NOVO: tenta fazer o match após salvar
+        if ($donationId) {
+            require_once __DIR__ . '/match-supporter.php';
+            $matchResult = matchSupporterByDonation($donationId);
+            logDebug('Match resultado', $matchResult);
+        }
 
     } else {
         logDebug('Erro ao salvar doações');
@@ -225,7 +229,7 @@ function updateSupportersCount() {
     });
 
     $cache = [
-        'total' => count($approved),
+        'total'        => count($approved),
         'last_updated' => date('c')
     ];
 

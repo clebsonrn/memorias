@@ -214,9 +214,8 @@ const Messages = (() => {
         const message = escapeHTML(msg.message);
 
         // Badge de apoiador
-        const position  = msg.supporter_position ? ` #${msg.supporter_position}` : '';
         const badgeHTML = msg.is_supporter
-            ? `<span class="supporter-badge" title="Apoiou em ${formatDate(msg.supporter_since || msg.date)}">💛 APOIADOR${position}</span>`
+            ? `<span class="supporter-badge" title="Apoiou em ${formatDate(msg.supporter_since || msg.date)}">💛 APOIADOR</span>`
             : '';
 
         // Classe extra no card se for apoiador

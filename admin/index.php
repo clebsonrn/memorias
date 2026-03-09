@@ -45,6 +45,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
 // --- Carrega dados ---
 $messages   = json_decode(@file_get_contents(MESSAGES_FILE), true) ?? [];
 $playCounts = json_decode(@file_get_contents(PLAYS_FILE),    true) ?? [];
+$donations  = json_decode(@file_get_contents(__DIR__ . '/../api/donations.json'), true) ?? [];
 
 $tracks = [
     '0' => 'Cabocla / Chico Mineiro / Nhambu Xita',
@@ -66,6 +67,12 @@ $withEmail     = count(array_filter($messages, fn($m) => !empty($m['_email'])));
 $withWhatsapp  = count(array_filter($messages, fn($m) => !empty($m['_whatsapp'])));
 $withConsent   = count(array_filter($messages, fn($m) => !empty($m['_consent'])));
 $withContact   = count(array_filter($messages, fn($m) => !empty($m['_email']) || !empty($m['_whatsapp'])));
+
+// --- Doações ---
+$approved    = array_filter($donations, fn($d) => ($d['status'] ?? '') === 'approved');
+$totalDonors = count($approved);
+$totalRaised = array_sum(array_column(array_values($approved), 'final_amount'));
+$avgTicket   = $totalDonors > 0 ? $totalRaised / $totalDonors : 0;
 
 // Ranking músicas
 $ranking = [];
@@ -230,6 +237,12 @@ body {
 
 .msg-card:hover { border-left-color: var(--orange); }
 
+.msg-card--supporter {
+    border-left-color: #D4A017 !important;
+    background: rgba(25, 18, 8, 0.7) !important;
+}
+.msg-card--supporter:hover { border-left-color: #F0B429 !important; }
+
 .msg-text { font-size: 0.95rem; color: var(--text); line-height: 1.6; font-style: italic; margin-bottom: 10px; }
 
 .msg-meta { display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.78rem; color: var(--dim); }
@@ -246,6 +259,7 @@ body {
 
 .badge-green { background: rgba(74,144,96,0.2); color: #7acc9a; border: 1px solid rgba(74,144,96,0.3); }
 .badge-dim   { background: rgba(100,80,60,0.2); color: var(--dim); border: 1px solid rgba(100,80,60,0.2); }
+.badge-supporter { background: linear-gradient(135deg, #8B4513, #A0522D); color: #FFF8DC; border: none; }
 
 /* ---- Tabela de Contatos ---- */
 .contacts-toolbar {
@@ -601,6 +615,18 @@ body {
             <div class="kpi-value"><?= $withConsent ?></div>
             <div class="kpi-label">Consentimentos</div>
         </div>
+        <div class="kpi-card" style="border-color:rgba(212,160,23,0.4);">
+            <div class="kpi-value" style="color:#D4A017;">R$ <?= number_format($totalRaised, 2, ',', '.') ?></div>
+            <div class="kpi-label">Total Arrecadado</div>
+        </div>
+        <div class="kpi-card" style="border-color:rgba(212,160,23,0.4);">
+            <div class="kpi-value" style="color:#D4A017;"><?= $totalDonors ?></div>
+            <div class="kpi-label">Apoiadores</div>
+        </div>
+        <div class="kpi-card" style="border-color:rgba(212,160,23,0.4);">
+            <div class="kpi-value" style="color:#D4A017;">R$ <?= number_format($avgTicket, 2, ',', '.') ?></div>
+            <div class="kpi-label">Ticket Médio</div>
+        </div>
     </div>
 
     <!-- Ranking de Músicas -->
@@ -631,10 +657,13 @@ body {
             <p class="empty">Nenhuma mensagem ainda.</p>
         <?php else: ?>
             <?php foreach ($lastMessages as $i => $m): ?>
-            <div class="msg-card" <?= $i >= 5 ? 'class="msg-card extra" style="display:none"' : '' ?>>
+            <div class="msg-card <?= !empty($m['is_supporter']) ? 'msg-card--supporter' : '' ?>" <?= $i >= 5 ? 'style="display:none"' : '' ?>>
                 <p class="msg-text">"<?= htmlspecialchars($m['message'] ?? '') ?>"</p>
                 <div class="msg-meta">
-                    <strong>🌾 <?= htmlspecialchars($m['name'] ?? '—') ?></strong>
+                    <strong><?= !empty($m['is_supporter']) ? '💛' : '🌾' ?> <?= htmlspecialchars($m['name'] ?? '—') ?></strong>
+                    <?php if (!empty($m['is_supporter'])): ?>
+                        <span class="badge badge-supporter">💛 APOIADOR #<?= (int)($m['supporter_position'] ?? 0) ?></span>
+                    <?php endif; ?>
                     <?php if (!empty($m['_email'])): ?>
                         <span>✉️ <?= htmlspecialchars($m['_email']) ?></span>
                     <?php endif; ?>

@@ -17,21 +17,17 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 define('RECAPTCHA_SECRET',  '6Lc5im0sAAAAALq78aiXvG_ToBTWhDjy94JinCU9');
 define('RECAPTCHA_MIN_SCORE', 0.5);
-define('RATE_LIMIT_HOURS', 3);
+define('RATE_LIMIT_HOURS', 0);
 define('MESSAGES_PER_PAGE', 10);
 define('MAX_CHARS', 280);
 define('MIN_CHARS', 10);
 define('DATA_FILE', __DIR__ . '/messages.json');
 define('RATE_FILE', __DIR__ . '/rate_limit.json');
 
-// Email para notificações
 define('ARTIST_EMAIL', 'contato@clebsonribeiro.com.br');
 define('ARTIST_NAME',  'Clebson Ribeiro');
-
-// Token admin (para responder mensagens) ← CORRIGIDO!
 define('ADMIN_TOKEN', '82941092900');
 
-// Configuração SMTP - AWS SES
 define('SMTP_HOST',     'email-smtp.us-west-2.amazonaws.com');
 define('SMTP_PORT',     587);
 define('SMTP_USER',     'AKIAIQXROUMGJ4UKAM5A');
@@ -74,47 +70,39 @@ function hashIP(string $ip): string {
     return hash('sha256', $ip . 'memorias_salt_2026');
 }
 
-/**
- * Carrega JSON com file locking
- * Retry até 3x se arquivo estiver travado
- */
 function loadJSON(string $file, $default, int $retries = 3) {
     if (!file_exists($file)) return $default;
-    
+
     $attempt = 0;
     while ($attempt < $retries) {
         $fp = @fopen($file, 'r');
         if (!$fp) {
             $attempt++;
-            usleep(100000); // 0.1s
+            usleep(100000);
             continue;
         }
-        
+
         if (flock($fp, LOCK_SH)) {
             $content = fread($fp, filesize($file) ?: 1);
             flock($fp, LOCK_UN);
             fclose($fp);
-            
+
             $data = json_decode($content, true);
             return $data ?? $default;
         }
-        
+
         fclose($fp);
         $attempt++;
         usleep(100000);
     }
-    
+
     return $default;
 }
 
-/**
- * Salva JSON com file locking
- * Retry até 3x se arquivo estiver travado
- */
 function saveJSON(string $file, $data, int $retries = 3): bool {
     $attempt = 0;
     $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    
+
     while ($attempt < $retries) {
         $fp = @fopen($file, 'c');
         if (!$fp) {
@@ -122,7 +110,7 @@ function saveJSON(string $file, $data, int $retries = 3): bool {
             usleep(100000);
             continue;
         }
-        
+
         if (flock($fp, LOCK_EX)) {
             ftruncate($fp, 0);
             rewind($fp);
@@ -132,12 +120,12 @@ function saveJSON(string $file, $data, int $retries = 3): bool {
             fclose($fp);
             return true;
         }
-        
+
         fclose($fp);
         $attempt++;
         usleep(100000);
     }
-    
+
     return false;
 }
 
@@ -153,95 +141,76 @@ function respond(bool $success, $data = [], int $code = 200): void {
 
 function sendReplyNotification(string $to, string $userName, string $userMessage, string $reply): bool {
     if (empty($to)) return false;
-    
-    // Conecta ao AWS SES
+
     $socket = @fsockopen(SMTP_HOST, SMTP_PORT, $errno, $errstr, 10);
     if (!$socket) return false;
-    
-    fgets($socket); // 220
-    
-    // EHLO
+
+    fgets($socket);
+
     fputs($socket, "EHLO " . SMTP_HOST . "\r\n");
     while ($line = fgets($socket)) {
         if (substr($line, 3, 1) == ' ') break;
     }
-    
-    // STARTTLS
+
     fputs($socket, "STARTTLS\r\n");
-    fgets($socket); // 220
-    
+    fgets($socket);
+
     if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
         fclose($socket);
         return false;
     }
-    
-    // EHLO após TLS
+
     fputs($socket, "EHLO " . SMTP_HOST . "\r\n");
     while ($line = fgets($socket)) {
         if (substr($line, 3, 1) == ' ') break;
     }
-    
-    // AUTH LOGIN
+
     fputs($socket, "AUTH LOGIN\r\n");
     fgets($socket);
     fputs($socket, base64_encode(SMTP_USER) . "\r\n");
     fgets($socket);
     fputs($socket, base64_encode(SMTP_PASS) . "\r\n");
     $auth = fgets($socket);
-    
+
     if (strpos($auth, '235') === false) {
         fclose($socket);
         return false;
     }
-    
-    // MAIL FROM
+
     fputs($socket, "MAIL FROM: <" . SMTP_FROM . ">\r\n");
     fgets($socket);
-    
-    // RCPT TO
     fputs($socket, "RCPT TO: <$to>\r\n");
     fgets($socket);
-    
-    // DATA
     fputs($socket, "DATA\r\n");
     fgets($socket);
-    
-    // Monta email HTML
+
     $htmlMessage = "<!DOCTYPE html>
 <html>
 <head><meta charset='UTF-8'></head>
 <body style='font-family: Georgia, serif; background: #0a0a0a; color: #d4c5b0; padding: 40px 20px;'>
     <div style='max-width: 600px; margin: 0 auto; background: rgba(20, 15, 10, 0.9); border: 1px solid rgba(200, 170, 120, 0.2); border-radius: 15px; padding: 40px;'>
-        
         <h1 style='font-family: Brush Script MT, cursive; font-size: 32px; color: #f4e4c1; text-align: center; margin-bottom: 10px;'>Memórias de um Pé Vermelho</h1>
-        
         <p style='text-align: center; color: #c9b896; font-size: 16px; margin-bottom: 30px;'>Clebson Ribeiro</p>
-        
         <div style='border-left: 3px solid rgba(255, 120, 30, 0.5); padding: 20px; background: rgba(10, 10, 10, 0.5); border-radius: 8px; margin-bottom: 30px;'>
             <p style='font-size: 14px; color: #8a7a6a; margin-bottom: 10px;'>Sua mensagem:</p>
             <p style='font-size: 16px; color: #d4c5b0; font-style: italic; line-height: 1.6;'>\"" . htmlspecialchars($userMessage) . "\"</p>
         </div>
-        
         <div style='background: rgba(40, 30, 20, 0.6); border-left: 3px solid #ff7820; padding: 20px; border-radius: 8px; margin-bottom: 30px;'>
             <p style='font-size: 14px; color: #ff7820; margin-bottom: 10px; font-weight: bold;'>🎵 Resposta de Clebson:</p>
             <p style='font-size: 16px; color: #f4e4c1; line-height: 1.7;'>" . nl2br(htmlspecialchars($reply)) . "</p>
         </div>
-        
         <div style='text-align: center; margin-top: 40px;'>
             <a href='https://memorias.clebsonribeiro.com.br' style='display: inline-block; background: linear-gradient(135deg, #ff7820, #ffa040); color: #fff; text-decoration: none; padding: 15px 35px; border-radius: 25px; font-weight: bold;'>🎧 Ouvir o Álbum</a>
         </div>
-        
         <p style='text-align: center; font-size: 12px; color: #6a5a4a; margin-top: 30px; line-height: 1.6;'>
             Você recebeu este e-mail porque deixou uma mensagem no EPK de Memórias de um Pé Vermelho.<br>
             <a href='https://clebsonribeiro.com.br' style='color: #8a7a6a;'>clebsonribeiro.com.br</a>
         </p>
-        
     </div>
 </body>
 </html>";
-    
-    // Envia email
-    $email = "From: " . SMTP_FROM_NAME . " <" . SMTP_FROM . ">\r\n";
+
+    $email  = "From: " . SMTP_FROM_NAME . " <" . SMTP_FROM . ">\r\n";
     $email .= "To: <$to>\r\n";
     $email .= "Subject: =?UTF-8?B?" . base64_encode("🎵 Clebson Ribeiro respondeu sua mensagem") . "?=\r\n";
     $email .= "Reply-To: " . ARTIST_EMAIL . "\r\n";
@@ -250,13 +219,12 @@ function sendReplyNotification(string $to, string $userName, string $userMessage
     $email .= "\r\n";
     $email .= $htmlMessage . "\r\n";
     $email .= ".\r\n";
-    
+
     fputs($socket, $email);
     $result = fgets($socket);
-    
     fputs($socket, "QUIT\r\n");
     fclose($socket);
-    
+
     return strpos($result, '250') !== false;
 }
 
@@ -304,7 +272,7 @@ function checkRateLimit(string $ipHash): bool {
     $rates = array_filter($rates, fn($ts) => ($now - $ts) < $limit);
 
     if (isset($rates[$ipHash])) {
-        $wait = $limit - ($now - $rates[$ipHash]);
+        $wait  = $limit - ($now - $rates[$ipHash]);
         $horas = floor($wait / 3600);
         $mins  = floor(($wait % 3600) / 60);
         respond(false, [
@@ -340,12 +308,11 @@ if ($method === 'GET') {
 
     $messages = array_reverse($messages);
 
-    $total    = count($messages);
-    $pages    = max(1, (int)ceil($total / MESSAGES_PER_PAGE));
-    $offset   = ($page - 1) * MESSAGES_PER_PAGE;
-    $slice    = array_slice($messages, $offset, MESSAGES_PER_PAGE);
+    $total  = count($messages);
+    $pages  = max(1, (int)ceil($total / MESSAGES_PER_PAGE));
+    $offset = ($page - 1) * MESSAGES_PER_PAGE;
+    $slice  = array_slice($messages, $offset, MESSAGES_PER_PAGE);
 
-    // Remove campos privados + inclui resposta se houver
     $public = array_map(function($m) {
         $result = [
             'id'      => $m['id'],
@@ -353,22 +320,27 @@ if ($method === 'GET') {
             'message' => $m['message'],
             'date'    => $m['date'],
         ];
-        
-        // Adiciona resposta se existir
+
         if (!empty($m['reply'])) {
             $result['reply'] = $m['reply'];
         }
-        
-        return $result;
 
+        // Badge de apoiador (sem dados privados)
+        if (!empty($m['is_supporter'])) {
+            $result['is_supporter']       = true;
+            $result['supporter_position'] = $m['supporter_position'] ?? null;
+            $result['supporter_since']    = $m['supporter_since']    ?? null;
+        }
+
+        return $result;
     }, $slice);
 
     respond(true, [
-        'messages'     => array_values($public),
-        'total'        => $total,
-        'page'         => $page,
-        'pages'        => $pages,
-        'per_page'     => MESSAGES_PER_PAGE,
+        'messages' => array_values($public),
+        'total'    => $total,
+        'page'     => $page,
+        'pages'    => $pages,
+        'per_page' => MESSAGES_PER_PAGE,
     ]);
 }
 
@@ -382,12 +354,13 @@ if ($method === 'POST') {
         respond(false, ['error' => 'spam'], 400);
     }
 
-    $name     = trim(strip_tags($input['name']            ?? ''));
-    $message  = trim(strip_tags($input['message']         ?? ''));
-    $email    = trim(strip_tags($input['email']           ?? ''));
-    $whatsapp = trim(strip_tags($input['whatsapp']        ?? ''));
-    $consent  = !empty($input['consent']);
-    $token    = trim($input['recaptcha_token']            ?? '');
+    $name        = trim(strip_tags($input['name']            ?? ''));
+    $message     = trim(strip_tags($input['message']         ?? ''));
+    $email       = trim(strip_tags($input['email']           ?? ''));
+    $whatsapp    = trim(strip_tags($input['whatsapp']        ?? ''));
+    $consent     = !empty($input['consent']);
+    $token       = trim($input['recaptcha_token']            ?? '');
+    $fingerprint = trim(strip_tags($input['_fingerprint']    ?? '')); // ← CORRIGIDO
 
     if (empty($name) || empty($message) || empty($token)) {
         respond(false, ['error' => 'missing_fields', 'message' => 'Preencha todos os campos obrigatórios.'], 400);
@@ -430,21 +403,22 @@ if ($method === 'POST') {
     $messages = loadJSON(DATA_FILE, []);
 
     $messages[] = [
-        'id'       => uniqid('msg_', true),
-        'name'     => $name,
-        'message'  => $message,
-        'date'     => date('c'),
-        'ip'       => $ipHash,
-        'reply'    => null,  // Resposta do artista
-        '_email'   => $email,
-        '_whatsapp'=> $whatsapp,
-        '_consent' => $consent,
+        'id'           => uniqid('msg_', true),
+        'name'         => $name,
+        'message'      => $message,
+        'date'         => date('c'),
+        'ip'           => $ipHash,
+        'reply'        => null,
+        '_email'       => $email,
+        '_whatsapp'    => $whatsapp,
+        '_fingerprint' => $fingerprint,
+        '_consent'     => $consent,
     ];
 
     if (!saveJSON(DATA_FILE, $messages)) {
         respond(false, ['error' => 'server', 'message' => 'Erro ao salvar. Tente novamente.'], 500);
     }
-    
+
     registerRateLimit($ipHash);
 
     respond(true, [
@@ -456,27 +430,26 @@ if ($method === 'POST') {
 // PUT — adicionar resposta (admin only)
 if ($method === 'PUT') {
     $input = json_decode(file_get_contents('php://input'), true);
-    
+
     $token     = $_SERVER['HTTP_X_ADMIN_TOKEN'] ?? $input['admin_token'] ?? '';
     $messageId = $input['message_id'] ?? '';
     $replyText = trim(strip_tags($input['reply'] ?? ''));
-    
-    // Valida token admin
+
     if ($token !== ADMIN_TOKEN) {
         respond(false, ['error' => 'unauthorized'], 403);
     }
-    
+
     if (empty($messageId) || empty($replyText)) {
         respond(false, ['error' => 'missing_fields'], 400);
     }
-    
+
     if (mb_strlen($replyText) > 500) {
         respond(false, ['error' => 'invalid', 'message' => 'Resposta muito longa. Máximo 500 caracteres.'], 400);
     }
-    
+
     $messages = loadJSON(DATA_FILE, []);
-    $found = false;
-    
+    $found    = false;
+
     foreach ($messages as &$msg) {
         if ($msg['id'] === $messageId) {
             $msg['reply'] = [
@@ -484,8 +457,7 @@ if ($method === 'PUT') {
                 'date' => date('c'),
             ];
             $found = true;
-            
-            // Tenta enviar email se tiver
+
             $emailSent = false;
             if (!empty($msg['_email'])) {
                 $emailSent = sendReplyNotification(
@@ -495,34 +467,32 @@ if ($method === 'PUT') {
                     $replyText
                 );
             }
-            
-            // Debug: salva status do email
-            $msg['_email_sent'] = $emailSent;
+
+            $msg['_email_sent']      = $emailSent;
             $msg['_email_attempted'] = !empty($msg['_email']);
-            
+
             break;
         }
     }
-    
+
     if (!$found) {
         respond(false, ['error' => 'not_found', 'message' => 'Mensagem não encontrada.'], 404);
     }
-    
+
     if (!saveJSON(DATA_FILE, $messages)) {
         respond(false, ['error' => 'server', 'message' => 'Erro ao salvar. Tente novamente.'], 500);
     }
-    
+
     $responseData = ['message' => 'Resposta adicionada com sucesso!'];
-    
-    // Adiciona info sobre email
+
     if (isset($emailSent)) {
-        $responseData['email_sent'] = $emailSent;
+        $responseData['email_sent']      = $emailSent;
         $responseData['email_attempted'] = !empty($msg['_email']);
         if (!$emailSent && !empty($msg['_email'])) {
             $responseData['email_warning'] = 'Resposta salva, mas email não foi enviado. Verifique configuração SMTP.';
         }
     }
-    
+
     respond(true, $responseData);
 }
 

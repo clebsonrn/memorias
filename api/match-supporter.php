@@ -1,31 +1,55 @@
 <?php
 /**
- * match-supporter.php v2
+ * match-supporter.php v2.1
  * Arquivo: /var/www/memorias/api/match-supporter.php
  *
  * GET  ?donation_id=don_xxx          → matching automático (debug)
  * POST { donation_id }               → matching automático
  * POST { donation_id, message_id }   → matching manual
+ *
+ * v2.1 - Nível 1 verifica donation.email E donation.payer_email
  */
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: https://memorias.clebsonribeiro.com.br');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
-
-// config-mp.php está na mesma pasta /api/
 require_once __DIR__ . '/config-mp.php';
 
-// messages.json também está em /api/ (mesmo que este arquivo)
-// DATA_FILE = __DIR__ . '/messages.json' definido em api/messages.php
-// DONATIONS_FILE = __DIR__ . '/donations.json' já definido no config-mp.php
-define('MESSAGES_FILE', __DIR__ . '/messages.json');
+if (!defined('MESSAGES_FILE')) {
+    define('MESSAGES_FILE', __DIR__ . '/messages.json');
+}
 
-// ── Entry point ───────────────────────────────────────────────────────────────
+// ── Entry point (só executa quando chamado diretamente, não via require_once) ──
 
-$method = $_SERVER['REQUEST_METHOD'];
+$isDirectCall = basename(__FILE__) === basename($_SERVER['SCRIPT_FILENAME'] ?? '');
+
+if ($isDirectCall) {
+    header('Content-Type: application/json');
+    header('Access-Control-Allow-Origin: https://memorias.clebsonribeiro.com.br');
+    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type');
+
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+
+    $method = $_SERVER['REQUEST_METHOD'];
+
+    if ($method === 'GET') {
+        $donationId = $_GET['donation_id'] ?? null;
+        if (!$donationId) respondMatch(['error' => 'donation_id obrigatório'], 400);
+        respondMatch(matchSupporterByDonation($donationId));
+    }
+
+    if ($method === 'POST') {
+        $body = json_decode(file_get_contents('php://input'), true);
+
+        if (!empty($body['message_id']) && !empty($body['donation_id'])) {
+            respondMatch(applyManualMatch($body['donation_id'], $body['message_id']));
+        }
+
+        if (!empty($body['donation_id'])) {
+            respondMatch(matchSupporterByDonation($body['donation_id']));
+        }
+
+        respondMatch(['error' => 'Parâmetros inválidos'], 400);
+    }
+}
 
 if ($method === 'GET') {
     $donationId = $_GET['donation_id'] ?? null;
@@ -64,8 +88,19 @@ function matchSupporterByDonation(string $donationId): array {
     $supporterPosition = getSupporterPosition($donationId, $donations);
 
     // Nível 1: Email
-    if (!empty($donation['payer_email'])) {
-        $matched = matchByEmail($donation['payer_email'], $messages);
+    // Verifica donation.email (coletado pelo modal) e donation.payer_email (vindo do MP)
+    $emailToMatch = !empty($donation['email'])
+        ? $donation['email']
+        : ($donation['payer_email'] ?? null);
+
+    if ($emailToMatch) {
+        $matched = matchByEmail($emailToMatch, $messages);
+
+        // Se não achou pelo primeiro, tenta o outro campo
+        if (!$matched && !empty($donation['email']) && !empty($donation['payer_email'])) {
+            $matched = matchByEmail($donation['payer_email'], $messages);
+        }
+
         if ($matched) {
             applyMatch($matched['id'], $donationId, $supporterPosition, 'email', $donation);
             logDebug('MATCH EMAIL', ['donation' => $donationId, 'message' => $matched['id']]);

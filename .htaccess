@@ -1,5 +1,5 @@
 # Memórias de um Pé Vermelho - Rewrite Rules
-
+Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /

@@ -14,7 +14,12 @@
         "ip": "00a6c099fcf7c1d1faa1579f79dcf07358f0c8e4b3908b7c0b90d4f00c5dfb34",
         "_email": "nos@f5virtual.com.br",
         "_whatsapp": "41998269467",
-        "_consent": true
+        "_consent": true,
+        "is_supporter": true,
+        "supporter_position": 5,
+        "supporter_donation_id": "don_69aab87aa6727_08505830",
+        "supporter_match_method": "email",
+        "supporter_since": "2026-03-06T08:21:29-03:00"
     },
     {
         "id": "msg_6994ee62b0aa63.34224296",
@@ -40,7 +45,12 @@
             "date": "2026-02-20T16:08:15-03:00"
         },
         "_email_sent": true,
-        "_email_attempted": true
+        "_email_attempted": true,
+        "is_supporter": true,
+        "supporter_position": 1,
+        "supporter_donation_id": "don_69a5b1bf946a2_e8d9c898",
+        "supporter_match_method": "email",
+        "supporter_since": "2026-03-02T13:46:38-03:00"
     },
     {
         "id": "msg_6997b33ca41f06.89842459",
@@ -225,9 +235,108 @@
         "message": "Parabéns meu filho, por esse maravilhoso disco, são lindas memórias eu viajo nessas canções quando eu tinha 5 anos já ouvia  no rádio do meu pai, e a vida, me deu um grande presente  você filho, gratidão",
         "date": "2026-02-28T13:09:25-03:00",
         "ip": "b9007592cda2cad2ff6be1f454c3465c4403d11f848e9e07ebd8def9071b578b",
-        "reply": null,
+        "reply": {
+            "text": "Filho de Inesita , violeiro é 😊🫶",
+            "date": "2026-03-04T21:37:48-03:00"
+        },
         "_email": "inesitaecesar@gmail.com",
         "_whatsapp": "44997737281",
+        "_consent": true,
+        "_email_sent": true,
+        "_email_attempted": true,
+        "is_supporter": true,
+        "supporter_position": 9,
+        "supporter_donation_id": "don_69ab1a3feb13a_89cd034a",
+        "supporter_match_method": "email",
+        "supporter_since": "2026-03-06T15:18:27-03:00"
+    },
+    {
+        "id": "msg_69a872461c80a6.89235340",
+        "name": "Anderson Batista dos Santos",
+        "message": "Diante do atual cenário brasileiro, de todo esse **** insensível e decrépito, ouvir sua música é uma tremenda alegria. Eu fico feliz por ainda existir sensibilidade na música brasileira, obrigado! \nA propósito, quais são suas influências?",
+        "date": "2026-03-04T14:56:22-03:00",
+        "ip": "04d7a7555aacf99cc49ab412966850f7defd85e9083018ee96ec9bcdc4a8fd99",
+        "reply": {
+            "text": "Anderson, muito obrigado pelas palavras e também pelo apoio ao meu trabalho. Saber que tem gente como você ouvindo com atenção e caminhando junto faz toda diferença.\n\nMinhas influências vêm da música caipira que ouvi desde cedo — Tião Carreiro, Renato Teixeira, Almir Sater — e também do rock e do blues, que acabaram entrando no meu jeito de tocar viola. \n\nObrigado mesmo pelo carinho e por caminhar junto nessa jornada da música. 🎶",
+            "date": "2026-03-04T21:36:45-03:00"
+        },
+        "_email": "anderson1992baptista@gmail.com",
+        "_whatsapp": "16994357522",
+        "_fingerprint": null,
+        "_consent": true,
+        "is_supporter": true,
+        "supporter_position": 2,
+        "supporter_donation_id": "don_69a8713a97f09_e58b735e",
+        "supporter_match_method": "email",
+        "supporter_since": "2026-03-04T14:52:15-03:00",
+        "_email_sent": true,
+        "_email_attempted": true
+    },
+    {
+        "id": "msg_69a9ab0b116f86.51523316",
+        "name": "Fernanda Peixoto",
+        "message": "Música pra ouvir presente, de olhos fechados e pra ativar os outros sentidos. Absolutamente sensível e maravilhoso.",
+        "date": "2026-03-05T13:10:51-03:00",
+        "ip": "8f4abf6d3fb9d202c7a321cca91a920bc240aebf68bb72a1b1a44953e25e5db5",
+        "reply": {
+            "text": "Fernanda, que alegria ler suas palavras. Saber que a música despertou essa sensação em você já faz tudo valer a pena. Muito obrigado pelo carinho e por apoiar esse trabalho de forma tão generosa.",
+            "date": "2026-03-05T20:25:44-03:00"
+        },
+        "_email": "nut.fernandapeixoto@gmail.com",
+        "_whatsapp": "14997072297",
+        "_fingerprint": null,
+        "_consent": true,
+        "is_supporter": true,
+        "supporter_position": 4,
+        "supporter_donation_id": "don_69a8d737e3549_3ba52c84",
+        "supporter_match_method": "email",
+        "supporter_since": "2026-03-04T22:08:53-03:00",
+        "_email_sent": true,
+        "_email_attempted": true
+    },
+    {
+        "id": "msg_69ab0dd5210c40.27872653",
+        "name": "Camilo",
+        "message": "que bonito moço!",
+        "date": "2026-03-06T14:24:37-03:00",
+        "ip": "8f47ec60bc51a1a686375c7b8bd6759ab6d86fd1161d8cf4663a0a41ac4f2d6c",
+        "reply": null,
+        "_email": "camiloc@gmailc.com",
+        "_whatsapp": "",
+        "_consent": false,
+        "is_supporter": true,
+        "supporter_position": 7,
+        "supporter_donation_id": "don_69ab0eb8e85cc_29e17a1d",
+        "supporter_match_method": "email",
+        "supporter_since": "2026-03-06T14:28:56-03:00"
+    },
+    {
+        "id": "msg_69ab365c8efa61.84832588",
+        "name": "Osmair dias",
+        "message": "Lembrei de minha infância no interior, o tempo voa amigo, bonito demais seu trabalho, parabéns.",
+        "date": "2026-03-06T17:17:32-03:00",
+        "ip": "8f47ec60bc51a1a686375c7b8bd6759ab6d86fd1161d8cf4663a0a41ac4f2d6c",
+        "reply": null,
+        "_email": "hanaina@gmail.com",
+        "_whatsapp": "",
+        "_fingerprint": "user_1772826893853_3mfj74jzd",
+        "_consent": false,
+        "is_supporter": true,
+        "supporter_position": 10,
+        "supporter_donation_id": "don_69ab37f80adc9_3fcd8f4a",
+        "supporter_match_method": "email",
+        "supporter_since": "2026-03-06T17:25:06-03:00"
+    },
+    {
+        "id": "msg_69ab44f0ea01c4.49842846",
+        "name": "Julyanna",
+        "message": "Quanto talento!!! Que repertório maravilhoso! Parabéns! 👏🏻👏🏻👏🏻👏🏻",
+        "date": "2026-03-06T18:19:44-03:00",
+        "ip": "18bbd195f2bb26e68a6e383d9c5fc6ddbc7fcddb7b55d243b715df3330c56dbc",
+        "reply": null,
+        "_email": "",
+        "_whatsapp": "",
+        "_fingerprint": "user_1772831607202_aeys1agm2",
         "_consent": true
     }
 ]

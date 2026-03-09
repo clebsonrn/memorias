@@ -1,7 +1,7 @@
 /**
- * Support Modal - Memorias de um Pe Vermelho
+ * Support Modal - Memórias de um Pé Vermelho
  * Sistema de apoio ao artista
- * v1.1 - Fluxo 3 telas: valor -> email -> checkout
+ * v1.0
  */
 
 class SupportModal {
@@ -20,13 +20,22 @@ class SupportModal {
      * Inicializa o modal
      */
     init() {
+        // Cria estrutura do modal
         this.createModal();
+        
+        // Cria botão fixo
         this.createFixedButton();
+        
+        // Event listeners
         this.attachEventListeners();
+        
+        // Busca contador de apoiadores
         this.fetchSupportersCount();
+        
+        // Carrega SDK do Mercado Pago
         this.loadMercadoPagoSDK();
         
-        console.log('\uD83D\uDC9B Support Modal inicializado v1.1');
+        console.log('💛 Support Modal inicializado');
     }
     
     /**
@@ -38,11 +47,11 @@ class SupportModal {
         const script = document.createElement('script');
         script.src = 'https://sdk.mercadopago.com/js/v2';
         script.onload = () => {
-            console.log('\u2705 SDK Mercado Pago carregado');
+            console.log('✅ SDK Mercado Pago carregado');
             this.mpLoaded = true;
         };
         script.onerror = () => {
-            console.error('\u274C Erro ao carregar SDK do Mercado Pago');
+            console.error('❌ Erro ao carregar SDK do Mercado Pago');
         };
         document.head.appendChild(script);
     }
@@ -55,135 +64,100 @@ class SupportModal {
             <div class="support-modal" id="supportModal">
                 <div class="support-overlay"></div>
                 <div class="support-content">
-                    <button class="support-close" id="supportClose">\u2715</button>
+                    <button class="support-close" id="supportClose">✕</button>
                     
-                    <!-- TELA 1: Selecao de valor -->
-                    <div id="step1">
-                        <div class="support-greeting">\u00d4 de casa...</div>
-                        
-                        <div class="support-stats">
-                            <span class="emoji">\uD83D\uDC9B</span>
-                            <span id="supportersText">Carregando...</span>
-                        </div>
-                        
-                        <div class="support-value">
-                            No Spotify, eu receberia <strong>R$ 0,004</strong> por audio.<br>
-                            Aqui, voc\u00ea decide quanto vale manter essa cultura viva.
-                        </div>
-                        
-                        <div class="support-position" id="supportPosition">
-                            <span class="emoji">\uD83C\uDF3E</span>
-                            Voc\u00ea ser\u00e1 o apoiador <strong>#<span id="nextPosition">1</span></strong>
-                        </div>
-                        
-                        <div class="support-amounts">
-                            <button class="amount-btn" data-amount="1">
-                                <span class="amount-value">R$ 1</span>
-                                <span class="amount-label">Um cafezinho</span>
-                            </button>
-                            <button class="amount-btn" data-amount="5">
-                                <span class="amount-value">R$ 5</span>
-                                <span class="amount-label">Recomendado \u2b50</span>
-                            </button>
-                            <button class="amount-btn" data-amount="10">
-                                <span class="amount-value">R$ 10</span>
-                                <span class="amount-label">Generoso!</span>
-                            </button>
-                            <button class="amount-btn custom" data-amount="custom">
-                                <span class="amount-value">Outro valor</span>
-                                <span class="amount-label">Voc\u00ea decide</span>
-                            </button>
-                        </div>
-                        
-                        <div class="custom-amount-input" id="customAmountInput">
-                            <input 
-                                type="number" 
-                                id="customAmount" 
-                                placeholder="R$ 0,00" 
-                                min="1" 
-                                max="1000"
-                                step="0.01"
-                            >
-                        </div>
-                        
-                        <div class="support-actions">
-                            <button class="btn-support-primary" id="btnContinue" disabled>
-                                \uD83D\uDC9B Continuar
-                            </button>
-                            <button class="btn-support-later" id="btnLater">
-                                Depois
-                            </button>
-                        </div>
-                        
-                        <p class="support-optional">
-                            \uD83D\uDC9B Totalmente opcional. Gratid\u00e3o \u00e9 suficiente!
-                        </p>
+                    <div class="support-greeting">Ô de casa...</div>
+                    
+                    <div class="support-stats">
+                        <span class="emoji">💛</span>
+                        <span id="supportersText">Carregando...</span>
                     </div>
-
-                    <!-- TELA 2: Email -->
-                    <div id="step2" style="display:none;">
-                        <div class="support-greeting">\uD83C\uDF3E Quase l\u00e1!</div>
-                        
-                        <div class="support-value" style="margin-bottom:20px;">
-                            Deixa seu email para aparecer como <strong>apoiador no feed</strong>.<br>
-                            <span style="font-size:0.85rem;color:#8a7a6a;">Totalmente opcional \u2014 pode pular se preferir.</span>
-                        </div>
-                        
-                        <div style="margin-bottom:8px;font-size:0.85rem;color:#8a7a6a;text-align:left;">
-                            \uD83D\uDCE7 Seu email
-                        </div>
+                    
+                    <div class="support-value">
+                        No Spotify, eu receberia <strong>R$ 0,004</strong> por audição.<br>
+                        Aqui, você decide quanto vale manter essa cultura viva.
+                    </div>
+                    
+                    <div class="support-position" id="supportPosition">
+                        <span class="emoji">🌾</span>
+                        Você será o apoiador <strong>#<span id="nextPosition">1</span></strong>
+                    </div>
+                    
+                    <div class="support-amounts">
+                        <button class="amount-btn" data-amount="1">
+                            <span class="amount-value">R$ 1</span>
+                            <span class="amount-label">Um cafezinho</span>
+                        </button>
+                        <button class="amount-btn" data-amount="5">
+                            <span class="amount-value">R$ 5</span>
+                            <span class="amount-label">Recomendado ⭐</span>
+                        </button>
+                        <button class="amount-btn" data-amount="10">
+                            <span class="amount-value">R$ 10</span>
+                            <span class="amount-label">Generoso!</span>
+                        </button>
+                        <button class="amount-btn custom" data-amount="custom">
+                            <span class="amount-value">Outro valor</span>
+                            <span class="amount-label">Você decide</span>
+                        </button>
+                    </div>
+                    
+                    <div class="custom-amount-input" id="customAmountInput">
                         <input 
-                            type="email" 
-                            id="supporterEmail" 
-                            placeholder="seu@email.com"
-                            autocomplete="email"
-                            class="supporter-email-input"
+                            type="number" 
+                            id="customAmount" 
+                            placeholder="R$ 0,00" 
+                            min="1" 
+                            max="1000"
+                            step="0.01"
                         >
-                        
-                        <div class="support-actions" style="margin-top:20px;">
-                            <button class="btn-support-primary" id="btnGoToPayment">
-                                \uD83D\uDC9B Ir para pagamento
-                            </button>
-                            <button class="btn-support-later" id="btnSkipEmail">
-                                Pular \u2192
-                            </button>
-                        </div>
-
-                        <p class="support-optional">
-                            Apoiando com <strong id="selectedAmountDisplay">R$ 0,00</strong>
-                        </p>
                     </div>
-
+                    
                     <!-- Placeholder para Mercado Pago -->
                     <div class="mercadopago-container" id="mercadopagoContainer">
-                        <!-- SDK do Mercado Pago sera carregado aqui -->
+                        <!-- SDK do Mercado Pago será carregado aqui -->
                     </div>
                     
                     <div class="support-loading" id="supportLoading">
                         <div class="spinner"></div>
                         <p>Preparando pagamento...</p>
                     </div>
+                    
+                    <div class="support-actions">
+                        <button class="btn-support-primary" id="btnContinue" disabled>
+                            💛 Continuar
+                        </button>
+                        <button class="btn-support-later" id="btnLater">
+                            Depois
+                        </button>
+                    </div>
+                    
+                    <p class="support-optional">
+                        💛 Totalmente opcional. Gratidão é suficiente!
+                    </p>
                 </div>
             </div>
         `;
         
+        // Adiciona ao body
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         this.modal = document.getElementById('supportModal');
     }
     
     /**
-     * Cria botao fixo no canto da tela
+     * Cria botão fixo no canto da tela
      */
     createFixedButton() {
         const buttonHTML = `
             <button class="support-fixed-btn" id="supportFixedBtn">
-                <span class="emoji">\uD83D\uDC9B</span>
+                <span class="emoji">💛</span>
                 Apoiar o artista
             </button>
         `;
         
         document.body.insertAdjacentHTML('beforeend', buttonHTML);
         
+        // Event listener
         document.getElementById('supportFixedBtn').addEventListener('click', () => {
             this.open();
         });
@@ -210,12 +184,12 @@ class SupportModal {
             }
         });
         
-        // Botao "Depois" (tela 1)
+        // Botão "Depois"
         document.getElementById('btnLater').addEventListener('click', () => {
             this.close();
         });
         
-        // Selecao de valores
+        // Seleção de valores
         const amountBtns = document.querySelectorAll('.amount-btn');
         amountBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -233,25 +207,9 @@ class SupportModal {
             }
         });
         
-        // Botao Continuar -> vai para tela de email
+        // Botão Continuar
         document.getElementById('btnContinue').addEventListener('click', () => {
-            this.showEmailStep();
-        });
-
-        // Botao "Ir para pagamento" (com email)
-        document.getElementById('btnGoToPayment').addEventListener('click', () => {
             this.processDonation();
-        });
-
-        // Botao "Pular" (sem email)
-        document.getElementById('btnSkipEmail').addEventListener('click', () => {
-            document.getElementById('supporterEmail').value = '';
-            this.processDonation();
-        });
-
-        // Enter no campo email dispara pagamento
-        document.getElementById('supporterEmail').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') this.processDonation();
         });
     }
     
@@ -287,32 +245,36 @@ class SupportModal {
         if (this.totalSupporters === 0) {
             textEl.textContent = 'Seja o primeiro a valorizar a viola caipira brasileira';
         } else if (this.totalSupporters === 1) {
-            textEl.textContent = '1 pessoa j\u00e1 entendeu o valor da viola caipira';
+            textEl.textContent = '1 pessoa já entendeu o valor da viola caipira';
         } else {
-            textEl.textContent = `${this.totalSupporters} pessoas j\u00e1 entenderam o valor da viola caipira`;
+            textEl.textContent = `${this.totalSupporters} pessoas já entenderam o valor da viola caipira`;
         }
         
         positionEl.textContent = this.totalSupporters + 1;
     }
     
     /**
-     * Seleciona valor da doacao
+     * Seleciona valor da doação
      */
     selectAmount(btn) {
+        // Remove seleção anterior
         document.querySelectorAll('.amount-btn').forEach(b => {
             b.classList.remove('selected');
         });
         
+        // Adiciona seleção
         btn.classList.add('selected');
         
         const amount = btn.dataset.amount;
         const customInput = document.getElementById('customAmountInput');
         
         if (amount === 'custom') {
+            // Mostra input customizado
             customInput.classList.add('show');
             document.getElementById('customAmount').focus();
             this.selectedAmount = null;
         } else {
+            // Valor pré-definido
             customInput.classList.remove('show');
             this.selectedAmount = parseFloat(amount);
         }
@@ -321,38 +283,22 @@ class SupportModal {
     }
     
     /**
-     * Atualiza estado do botao Continuar
+     * Atualiza estado do botão Continuar
      */
     updateContinueButton() {
         const btn = document.getElementById('btnContinue');
         
         if (this.selectedAmount && this.selectedAmount >= 1) {
             btn.disabled = false;
-            btn.textContent = `\uD83D\uDC9B Continuar com R$ ${this.selectedAmount.toFixed(2)}`;
+            btn.textContent = `💛 Apoiar com R$ ${this.selectedAmount.toFixed(2)}`;
         } else {
             btn.disabled = true;
-            btn.textContent = '\uD83D\uDC9B Continuar';
+            btn.textContent = '💛 Continuar';
         }
-    }
-
-    /**
-     * Mostra tela de email (tela 2)
-     */
-    showEmailStep() {
-        // Esconde tela 1
-        document.getElementById('step1').style.display = 'none';
-        // Mostra valor selecionado na tela 2
-        document.getElementById('selectedAmountDisplay').textContent =
-            `R$ ${this.selectedAmount.toFixed(2)}`;
-        // Mostra tela 2
-        document.getElementById('step2').style.display = 'block';
-        // Foca no campo de email
-        setTimeout(() => document.getElementById('supporterEmail').focus(), 100);
-        console.log('\uD83D\uDC9B Tela de email exibida');
     }
     
     /**
-     * Processa doacao com iFrame
+     * Processa doação com iFrame
      */
     async processDonation() {
         if (!this.selectedAmount || this.selectedAmount < 1) {
@@ -360,17 +306,16 @@ class SupportModal {
             return;
         }
         
-        console.log('\uD83D\uDCB0 Processando doacao:', this.selectedAmount);
+        console.log('💰 Processando doação:', this.selectedAmount);
         
-        // Esconde tela 2, mostra loading
-        document.getElementById('step2').style.display = 'none';
         const loading = document.getElementById('supportLoading');
         loading.classList.add('show');
         
         try {
+            // Pega fingerprint do analytics
             const fingerprint = localStorage.getItem('memorias_user_id') || null;
-            const email = document.getElementById('supporterEmail')?.value?.trim() || null;
             
+            // Chama API para criar pagamento
             const response = await fetch('/api/create-payment.php', {
                 method: 'POST',
                 headers: {
@@ -378,7 +323,7 @@ class SupportModal {
                 },
                 body: JSON.stringify({
                     amount: this.selectedAmount,
-                    email: email,
+                    email: null, // TODO: Coletar email (opcional)
                     fingerprint: fingerprint
                 })
             });
@@ -389,20 +334,18 @@ class SupportModal {
             
             if (!data.success) {
                 alert('Erro ao criar pagamento: ' + (data.error || 'Tente novamente'));
-                // Volta para tela 2 se der erro
-                document.getElementById('step2').style.display = 'block';
                 return;
             }
             
-            console.log('\u2705 Preferencia criada:', data.preference_id);
+            console.log('✅ Preferência criada:', data.preference_id);
             
+            // Abre checkout no iFrame
             this.openCheckoutIframe(data.preference_id, data.public_key);
             
         } catch (error) {
             loading.classList.remove('show');
-            console.error('Erro ao processar doacao:', error);
+            console.error('Erro ao processar doação:', error);
             alert('Erro ao processar pagamento. Tente novamente.');
-            document.getElementById('step2').style.display = 'block';
         }
     }
     
@@ -410,8 +353,9 @@ class SupportModal {
      * Abre checkout do Mercado Pago no iFrame
      */
     async openCheckoutIframe(preferenceId, publicKey) {
+        // Aguarda SDK carregar
         if (!this.mpLoaded) {
-            console.log('\u23f3 Aguardando SDK carregar...');
+            console.log('⏳ Aguardando SDK carregar...');
             await new Promise(resolve => {
                 const interval = setInterval(() => {
                     if (this.mpLoaded && window.MercadoPago) {
@@ -422,16 +366,20 @@ class SupportModal {
             });
         }
         
+        // Inicializa Mercado Pago
         if (!this.mp) {
             this.mp = new window.MercadoPago(publicKey);
         }
         
+        // Esconde seleção de valores
         const content = this.modal.querySelector('.support-content');
         content.classList.add('payment-active');
         
+        // Mostra container do checkout
         const container = document.getElementById('mercadopagoContainer');
         container.classList.add('show');
         
+        // Cria checkout no iFrame
         try {
             const checkout = this.mp.checkout({
                 preference: {
@@ -444,17 +392,18 @@ class SupportModal {
                 autoOpen: true
             });
             
-            console.log('\u2705 Checkout iFrame aberto');
+            console.log('✅ Checkout iFrame aberto');
             
         } catch (error) {
             console.error('Erro ao abrir checkout:', error);
             
+            // Fallback: abre em nova aba
             const checkoutUrl = `https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=${preferenceId}`;
             window.open(checkoutUrl, '_blank');
             
             setTimeout(() => {
                 this.close();
-                alert('\u2705 Abrimos o checkout do Mercado Pago em nova aba!\n\nObrigado pelo seu apoio! \uD83D\uDC9B');
+                alert('✅ Abrimos o checkout do Mercado Pago em nova aba!\n\nObrigado pelo seu apoio! 💛');
             }, 500);
         }
     }
@@ -465,77 +414,81 @@ class SupportModal {
     open(reason = 'manual') {
         if (this.isOpen) return;
         
-        console.log('\uD83D\uDC9B Abrindo modal:', reason);
+        console.log('💛 Abrindo modal:', reason);
         
         this.modal.classList.add('show');
         this.isOpen = true;
         
+        // Atualiza contador
         this.fetchSupportersCount();
         
+        // Impede scroll da página
         document.body.style.overflow = 'hidden';
         
+        // Analytics
         if (window.listeningAnalytics) {
+            // Marca que viu o modal (para não repetir)
             window.listeningAnalytics.markSupportModalSeen(reason);
         }
     }
     
     /**
-     * Fecha modal e reseta todas as telas
+     * Fecha modal
      */
     close() {
         if (!this.isOpen) return;
         
-        console.log('\uD83D\uDC9B Fechando modal');
+        console.log('💛 Fechando modal');
         
         this.modal.classList.remove('show');
         this.isOpen = false;
         
+        // Restaura scroll
         document.body.style.overflow = '';
         
-        // Limpa iFrame
+        // Limpa iFrame se estava aberto
         const container = document.getElementById('mercadopagoContainer');
         if (container) {
             container.innerHTML = '';
             container.classList.remove('show');
         }
         
-        // Remove payment-active
+        // Remove classe payment-active
         const content = this.modal.querySelector('.support-content');
         if (content) {
             content.classList.remove('payment-active');
         }
         
-        // Reset campos
+        // Reset
         this.selectedAmount = null;
         document.querySelectorAll('.amount-btn').forEach(b => {
             b.classList.remove('selected');
         });
         document.getElementById('customAmountInput').classList.remove('show');
         document.getElementById('customAmount').value = '';
-        document.getElementById('supporterEmail').value = '';
         this.updateContinueButton();
-
-        // Volta para tela 1
-        document.getElementById('step1').style.display = 'block';
-        document.getElementById('step2').style.display = 'none';
     }
 }
 
 // ============================================
-// INTEGRACAO COM ANALYTICS
+// INTEGRAÇÃO COM ANALYTICS
 // ============================================
 
+/**
+ * Verifica se deve mostrar modal automaticamente
+ */
 function checkAutoShowSupportModal() {
     if (!window.listeningAnalytics) {
-        console.log('\u26a0\ufe0f Analytics nao carregado');
+        console.log('⚠️ Analytics não carregado');
         return;
     }
     
     const reason = window.listeningAnalytics.shouldShowSupportModal();
     
     if (reason) {
-        console.log('\uD83C\uDFAF Gatilho ativado:', reason);
+        console.log('🎯 Gatilho ativado:', reason);
         
+        // Aguarda 2 segundos após o gatilho
         setTimeout(() => {
             if (window.supportModal) {
                 window.supportModal.open(reason);
@@ -545,19 +498,24 @@ function checkAutoShowSupportModal() {
 }
 
 // ============================================
-// INICIALIZACAO
+// INICIALIZAÇÃO
 // ============================================
 
+// Aguarda DOM carregar
 document.addEventListener('DOMContentLoaded', () => {
+    // Inicializa modal
     window.supportModal = new SupportModal();
-    console.log('\u2705 Support Modal pronto v1.1');
+    
+    console.log('✅ Support Modal pronto');
 });
 
+// Escuta evento de álbum completo
 window.addEventListener('albumCompleted', (event) => {
-    console.log('\uD83C\uDF89 Album completo!', event.detail);
+    console.log('🎉 Álbum completo!', event.detail);
     checkAutoShowSupportModal();
 });
 
+// Expõe função global para abrir modal
 window.openSupportModal = function() {
     if (window.supportModal) {
         window.supportModal.open('manual');
